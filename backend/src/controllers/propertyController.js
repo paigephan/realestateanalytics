@@ -1,7 +1,7 @@
 import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
           updatePropertyURLByID, selectRandomImageURLs, 
-          selectDistinctSuburb, selectDistinctDistrict, selectDistinctDistrictFromSuburb} from '../models/property.js';
-import { addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectDistrictSchema
+          selectDistinctSuburb, selectDistinctDistrict, selectDistinctSuburbsFromDistricts} from '../models/property.js';
+import { addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema
  } from '../validators/groupingvalidators.js';
 
 export const getPropertyIDByAddressLandArea = async (req, res) => {
@@ -120,16 +120,16 @@ export const getDistinctDistrict = async (req, res) => {
   }
 };
 
-export const getDistinctDistrictFromSuburb = async (req, res) => {
+export const getDistinctSuburbsFromDistricts = async (req, res) => {
   try {
     // ✅ Validate input
-    const validatedData = await selectDistrictSchema.validate(req.body, {
+    const validatedData = await selectSuburbSchema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
     });
 
     // ✅ Call service
-    const result = await selectDistinctDistrictFromSuburb(validatedData);
+    const result = await selectDistinctSuburbsFromDistricts(validatedData);
 
     return res.json({
       success: true,

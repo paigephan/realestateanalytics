@@ -114,7 +114,7 @@ export const selectDistinctSuburb = async () => {
     try {
       const result = await pool.query(query); // no params needed
       // return all image URLs as array
-      return result.rows.map(row => row.image_url);
+      return result.rows.map(row => row.suburb);
     } catch (err) {
       console.error("Error selecting distinct suburb:", err);
       return [];
@@ -133,32 +133,32 @@ export const selectDistinctDistrict = async () => {
     try {
       const result = await pool.query(query); // no params needed
       // return all image URLs as array
-      return result.rows.map(row => row.image_url);
+      return result.rows.map(row => row.district);
     } catch (err) {
       console.error("Error selecting distinct district:", err);
       return [];
     }
 };
 
-export const selectDistinctDistrictFromSuburb = async (data) => {
+export const selectDistinctSuburbsFromDistricts = async (data) => {
     const { listSuburbs } = data;
 
     if (!listSuburbs || listSuburbs.length === 0) return [];
 
     const query = `
-        SELECT district
+        SELECT suburb
         FROM (
-            SELECT DISTINCT district
+            SELECT DISTINCT suburb
             FROM property_info
-            WHERE suburb = ANY($1)
+            WHERE district = ANY($1)
 
             UNION
 
             SELECT 'All'
         ) t
         ORDER BY 
-            CASE WHEN district = 'All' THEN 0 ELSE 1 END,
-            district ASC;
+            CASE WHEN suburb = 'All' THEN 0 ELSE 1 END,
+            suburb ASC;
     `;
 
     const values = [listSuburbs];

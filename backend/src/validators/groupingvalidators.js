@@ -43,7 +43,7 @@ export const propertyCVSchema = Yup.object({
     cv_value: cv_valuetField
 })
 
-export const selectDistrictSchema = Yup.object({
+export const selectSuburbSchema = Yup.object({
     listSuburbs: Yup.array()
       .of(Yup.string().trim().min(1))
       .min(1, "At least one suburb is required")
