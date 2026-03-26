@@ -1,5 +1,7 @@
-import { selectPropertyIDByAddressLandArea, insertPropertyInfo, updatePropertyURLByID, selectRandomImageURLs } from '../models/property.js';
-import { addressLandAreaSchema, newpropertySchema, propertyURLSchema
+import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
+          updatePropertyURLByID, selectRandomImageURLs, 
+          selectDistinctSuburb, selectDistinctDistrict, selectDistinctDistrictFromSuburb} from '../models/property.js';
+import { addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectDistrictSchema
  } from '../validators/groupingvalidators.js';
 
 export const getPropertyIDByAddressLandArea = async (req, res) => {
@@ -89,5 +91,63 @@ export const getRandomImageURLs = async (req, res) => {
   
   } catch (err) {
       res.status(500).json({ error: err.message });
+  }
+};
+
+export const getDistinctSuburb = async (req, res) => {
+  try {
+  
+      // Call model
+      const result = await selectDistinctSuburb();
+      
+      res.json(result);
+  
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
+export const getDistinctDistrict = async (req, res) => {
+  try {
+  
+      // Call model
+      const result = await selectDistinctDistrict();
+      
+      res.json(result);
+  
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
+export const getDistinctDistrictFromSuburb = async (req, res) => {
+  try {
+    // ✅ Validate input
+    const validatedData = await selectDistrictSchema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    // ✅ Call service
+    const result = await selectDistinctDistrictFromSuburb(validatedData);
+
+    return res.json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    // ✅ Handle validation errors
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        errors: err.errors,
+      });
+    }
+
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

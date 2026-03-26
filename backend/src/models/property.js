@@ -140,19 +140,29 @@ export const selectDistinctDistrict = async () => {
     }
 };
 
-// export const selectDistinctDistrictFromSuburb = async (data) => {
-//     const { listSuburbs } = data;
+export const selectDistinctDistrictFromSuburb = async (data) => {
+    const { listSuburbs } = data;
 
-//     const query = `
-//     select distinct suburb from property_info where district in $1
-//     `;
-  
-//     try {
-//       const result = await pool.query(query); // no params needed
-//       // return all image URLs as array
-//       return result.rows.map(row => row.image_url);
-//     } catch (err) {
-//       console.error("Error selecting distinct district:", err);
-//       return [];
-//     }
-// };
+    if (!listSuburbs || listSuburbs.length === 0) return [];
+
+    const query = `
+        SELECT district
+        FROM (
+            SELECT DISTINCT district
+            FROM property_info
+            WHERE suburb = ANY($1)
+
+            UNION
+
+            SELECT 'All'
+        ) t
+        ORDER BY 
+            CASE WHEN district = 'All' THEN 0 ELSE 1 END,
+            district ASC;
+    `;
+
+    const values = [listSuburbs];
+    const result = await pool.query(query, values);
+
+    return result.rows;
+};

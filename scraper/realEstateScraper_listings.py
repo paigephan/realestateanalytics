@@ -21,47 +21,6 @@ def totalpages(driver, wait, URL):
 
     return 1
 
-# def scrape_propertylistings(driver, URL, PAGES):
-
-#     data = []
-#     seen_urls = set()  # to remove duplicates
-
-#     for page in range(1, PAGES + 1):
-#         url = f"{URL}?page={page}"
-#         print(f"Scraping {url}")
-
-#         driver.get(url)
-#         time.sleep(2)
-        
-#         soup = BeautifulSoup(driver.page_source, "html.parser")
-
-#         listings = soup.select("a[href*='/residential/sale/']")
-
-#         for listing in listings:
-#             link = listing.get("href")
-#             if link:
-#                 if not link.startswith("http"):
-#                     link = "https://www.realestate.co.nz" + link
-
-#                 # Skip invalid links
-#                 if link.startswith("https://www.realestate.co.nz/residential/sale/"):
-#                     continue
-
-#                 # Remove duplicates
-#                 if link not in seen_urls:
-#                     seen_urls.add(link)
-#                     data.append({
-#                         "page_no": page,
-#                         "realestate_url": link,
-#                         # "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#                     })
-
-        
-
-#         time.sleep(2)
-
-#     return data
-
 def scrape_propertylistings(driver, page, seen_urls):
     data = []
 
