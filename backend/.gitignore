@@ -1,0 +1,5 @@
+# Environment variables (database credentials, API keys)
+.env
+
+# Node modules (all installed npm packages)
+node_modules/
