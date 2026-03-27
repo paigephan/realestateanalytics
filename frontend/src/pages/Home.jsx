@@ -3,13 +3,13 @@ import React, { useState, useEffect } from "react";
 function Home() {
   const [images, setImages] = useState([]);          
   const [currentIndex, setCurrentIndex] = useState(0);
-  const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL_IMAGE = `${process.env.REACT_APP_API_BASE_URL}/property/randomimages`;
 
   // Fetch images from API on mount
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_URL_IMAGE, {
           headers: {"x-api-key": process.env.REACT_APP_API_KEY
         }});
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -21,7 +21,7 @@ function Home() {
     };
   
     fetchImages();
-  }, [API_URL]); // add API_URL here
+  }, [API_URL_IMAGE]); // add API_URL here
 
   // Auto slide every 3 seconds
   useEffect(() => {

@@ -105,10 +105,15 @@ export const selectRandomImageURLs = async () => {
 export const selectDistinctSuburb = async () => {
   
     const query = `
-    SELECT DISTINCT suburb FROM property_info
-    UNION
-    SELECT 'All'
-    ORDER BY suburb ASC;
+        SELECT suburb
+        FROM (
+            SELECT DISTINCT suburb FROM property_info
+            UNION
+            SELECT 'All' AS suburb
+        ) t
+        ORDER BY 
+            (suburb = 'All') DESC,
+            suburb ASC;
     `;
   
     try {
@@ -140,25 +145,16 @@ export const selectDistinctDistrict = async () => {
     }
 };
 
-export const selectDistinctSuburbsFromDistricts = async (data) => {
+export const checkDistinctSuburbsFromDistricts = async (data) => {
     const { listSuburbs } = data;
 
     if (!listSuburbs || listSuburbs.length === 0) return [];
 
     const query = `
         SELECT suburb
-        FROM (
-            SELECT DISTINCT suburb
-            FROM property_info
-            WHERE district = ANY($1)
-
-            UNION
-
-            SELECT 'All'
-        ) t
-        ORDER BY 
-            CASE WHEN suburb = 'All' THEN 0 ELSE 1 END,
-            suburb ASC;
+        FROM property_info
+        WHERE 
+        $1::text[] IS NULL OR district = ANY($1)
     `;
 
     const values = [listSuburbs];
@@ -166,3 +162,62 @@ export const selectDistinctSuburbsFromDistricts = async (data) => {
 
     return result.rows;
 };
+
+export const searchProperties = async ({
+    suburbs,
+    districts,
+    min_price,
+    max_price,
+    min_area,
+    max_area
+  }) => {
+  
+    const query = `
+      WITH latest_sale AS (
+          SELECT DISTINCT ON (id) 
+                 id, pricing_method, price, created_at
+          FROM property_sale_price
+          ORDER BY id, created_at DESC
+      ),
+      combined AS (
+          SELECT 
+              p.realestate_url,
+              p.image_url, 
+              p.address, 
+              p.land_area_m2, 
+              p.suburb,
+              p.district,
+              c.cv_date_text,
+              c.cv_value,
+              t1.pricing_method,
+              t1.price,
+              COALESCE(t1.price, c.cv_value) AS final_price
+          FROM property_info p
+          LEFT JOIN cv_most_recent c ON p.id = c.id
+          LEFT JOIN latest_sale t1 ON t1.id = p.id
+      )
+      SELECT *
+      FROM combined
+      WHERE 
+          (
+            ($1::text[] IS NULL OR suburb = ANY($1))
+            AND ($2::text[] IS NULL OR district = ANY($2))
+          )
+          AND ($3::numeric IS NULL OR final_price >= $3)
+          AND ($4::numeric IS NULL OR final_price <= $4)
+          AND ($5::numeric IS NULL OR land_area_m2 >= $5)
+          AND ($6::numeric IS NULL OR land_area_m2 <= $6)
+    `;
+  
+    const values = [
+      suburbs?.length ? suburbs : null,
+      districts?.length ? districts : null,
+      min_price ?? null,
+      max_price ?? null,
+      min_area ?? null,
+      max_area ?? null
+    ];
+  
+    const { rows } = await pool.query(query, values);
+    return rows;
+  };

@@ -51,3 +51,14 @@ export const selectSuburbSchema = Yup.object({
       .required("listSuburbs is required"),
   });
 
+
+export const searchPropertiesSchema = Yup.object({
+    suburbs: Yup.array().of(Yup.string().trim()).default([]),
+    districts: Yup.array().of(Yup.string().trim()).default([]),
+  
+    min_price: Yup.number().min(0).nullable(),
+    max_price: Yup.number().min(0).nullable(),
+  
+    min_area: Yup.number().min(0).nullable(),
+    max_area: Yup.number().min(0).nullable(),
+  });

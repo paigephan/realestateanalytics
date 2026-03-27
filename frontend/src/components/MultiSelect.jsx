@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-export default function MultiSelect({ options = [] }) {
+export default function MultiSelect({ options = [], onChange }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState([]);
   const [open, setOpen] = useState(false);
@@ -19,34 +19,43 @@ export default function MultiSelect({ options = [] }) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Filter options based on search and exclude already selected
   const filtered = options.filter(
     (opt) =>
-      opt.toLowerCase().includes(search.toLowerCase()) &&
-      !selected.includes(opt)
+      opt &&
+      opt.label &&
+      opt.label.toLowerCase().includes(search.toLowerCase()) &&
+      !selected.some((s) => s.value === opt.value)
   );
 
+  // Add option to selected
   const addOption = (opt) => {
-    setSelected((prev) => [...prev, opt]);
+    const newSelected = [...selected, opt];
+    setSelected(newSelected);
     setSearch("");
+    if (onChange) onChange(newSelected); // notify parent
   };
 
+  // Remove option from selected
   const removeOption = (opt) => {
-    setSelected((prev) => prev.filter((o) => o !== opt));
+    const newSelected = selected.filter((o) => o.value !== opt.value);
+    setSelected(newSelected);
+    if (onChange) onChange(newSelected); // notify parent
   };
 
   return (
     <div className="w-full max-w-md relative" ref={containerRef}>
-      {/* Input + Tags */}
+      {/* Input + Selected Tags */}
       <div
         className="flex flex-wrap items-center gap-2 border rounded-lg px-3 py-2 cursor-text focus-within:ring-2 focus-within:ring-blue-500"
         onClick={() => setOpen(true)}
       >
         {selected.slice(0, MAX_VISIBLE).map((item) => (
           <span
-            key={item}
+            key={item.value}
             className="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded flex items-center gap-1"
           >
-            {item}
+            {item.label}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -66,6 +75,7 @@ export default function MultiSelect({ options = [] }) {
           </span>
         )}
 
+        {/* Search input */}
         <input
           className="flex-1 outline-none text-sm"
           placeholder="Select options..."
@@ -83,11 +93,11 @@ export default function MultiSelect({ options = [] }) {
           {filtered.length > 0 ? (
             filtered.map((opt) => (
               <div
-                key={opt}
+                key={opt.value}
                 onClick={() => addOption(opt)}
                 className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
               >
-                {opt}
+                {opt.label}
               </div>
             ))
           ) : (

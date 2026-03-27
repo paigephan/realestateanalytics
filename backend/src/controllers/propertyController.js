@@ -1,8 +1,9 @@
 import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
           updatePropertyURLByID, selectRandomImageURLs, 
-          selectDistinctSuburb, selectDistinctDistrict, selectDistinctSuburbsFromDistricts} from '../models/property.js';
-import { addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema
- } from '../validators/groupingvalidators.js';
+          selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
+          searchProperties} from '../models/property.js';
+import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
+          searchPropertiesSchema } from '../validators/groupingvalidators.js';
 
 export const getPropertyIDByAddressLandArea = async (req, res) => {
     try {
@@ -129,7 +130,7 @@ export const getDistinctSuburbsFromDistricts = async (req, res) => {
     });
 
     // ✅ Call service
-    const result = await selectDistinctSuburbsFromDistricts(validatedData);
+    const result = await checkDistinctSuburbsFromDistricts(validatedData);
 
     return res.json({
       success: true,
@@ -148,6 +149,40 @@ export const getDistinctSuburbsFromDistricts = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+};
+
+
+export const searchPropertiesController = async (req, res) => {
+  try {
+    // 1️⃣ Validate request body
+    const validated = await searchPropertiesSchema.validate(req.body, {
+      abortEarly: false,
+    });
+
+    // 2️⃣ Call model
+    const results = await searchProperties(validated);
+
+    // 3️⃣ Response
+    return res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results
+    });
+
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        errors: err.errors
+      });
+    }
+
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      error: "Server error"
     });
   }
 };
