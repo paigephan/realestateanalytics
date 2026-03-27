@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'realyticsnz'
           slot-name: 'Production'
-          package: .
+          package: node-app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_85EA34761B3841CAAAC5AFBA8F362D06 }}
