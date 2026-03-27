@@ -30,14 +30,16 @@ export const insertPropertyInfo = async ({
       image_url,
       address,
       land_area_m2,
+      district,
+      suburb,
     }) => {  
     const query = `
-        INSERT INTO property_info (realestate_url, image_url, address, land_area_m2)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO property_info (realestate_url, image_url, address, land_area_m2, district, suburb)
+        VALUES ($1, $2, $3, $4, $5, $6)
         Returning *
     `;
   
-    const values = [realestate_url, image_url, address, land_area_m2];
+    const values = [realestate_url, image_url, address, land_area_m2, district, suburb];
   
     const result = await pool.query(query, values);
     return result.rows[0];
@@ -181,6 +183,7 @@ export const searchProperties = async ({
       ),
       combined AS (
           SELECT 
+              p.id,
               p.realestate_url,
               p.image_url, 
               p.address, 

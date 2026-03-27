@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 function Home() {
   const [images, setImages] = useState([]);          
   const [currentIndex, setCurrentIndex] = useState(0);
-  const API_URL_IMAGE = `${process.env.REACT_APP_API_BASE_URL}/property/randomimages`;
+  const API_URL_IMAGE = `${process.env.REACT_APP_API_BASE_URL}/api/property/randomimages`;
 
   // Fetch images from API on mount
   useEffect(() => {

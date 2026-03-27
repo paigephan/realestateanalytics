@@ -4,7 +4,7 @@ import axios from "axios";
 function PropertyCart() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/property/search`;
+  const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/api/property/search`;
 
   const handleSearch = async () => {
     setLoading(true);

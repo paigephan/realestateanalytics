@@ -8,6 +8,13 @@ from realEstateScraper_details import scrape_propertydetails
 from realEstateAPI_creation import get_property_id, insert_property, update_price, update_cv
 from realEstateScraper_listings import scrape_propertylistings, totalpages
 import random
+from realEstateUtils import extract_suburb_district
+
+# Load environment variables from a .env file
+load_dotenv()
+
+# Get the API base URL
+api_base_url = os.environ.get("SCRAPER_API_BASE_URL")
 
 def main(url, headers):
 
@@ -19,24 +26,28 @@ def main(url, headers):
     property_id = get_property_id(result["address"], result["land_area_m2"], headers)
 
     if not property_id:
+        suburb, district = extract_suburb_district(result.get("address"))
+
         property_id = insert_property(
             {
             "realestate_url": result["url"],
             "image_url": result["image_url"],
             "address": result["address"],
-            "land_area_m2": result["land_area_m2"]
+            "land_area_m2": result["land_area_m2"],
+            "district": district,
+            "suburb": suburb
             }, 
             headers
         )
 
     else:
         requests.patch(
-            f"http://localhost:3000/api/property/{property_id}/url",
+            f"{api_base_url}/api/property/{property_id}/url",
             json={"property_id": property_id, "realestate_url": result["url"]},
             headers=headers
         )
-
-    if result.get("price") is not None:
+    
+    if result.get("pricing_method") is not None:
         update_price(property_id, result, headers)
 
     if result.get("cv_value") is not None:
@@ -67,7 +78,7 @@ if __name__ == "__main__":
 
         # Step 3: run through all pages
         seen_urls = set()
-        for page in range(75, PAGES + 1): # change back to 1 after done crawling
+        for page in range(1, PAGES + 1): 
             url = f"{BASE_URL}?page={page}"
             print(f"Scraping {url}")
 
@@ -83,7 +94,7 @@ if __name__ == "__main__":
                     print(data)
                     print("remaining pages:", PAGES - page)
                     # Step 6: update each listing of property to db
-                    response = requests.post("http://localhost:3000/api/listinghistory", json=data, headers=HEADERS)
+                    response = requests.post(f"{api_base_url}/api/listinghistory", json=data, headers=HEADERS)
                     url = data.get('realestate_url')
 
                     # Step 7: Crawl details of each property & update db accordingly

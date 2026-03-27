@@ -5,10 +5,11 @@
 import { useEffect, useState } from "react";
 import MultiSelect from "../components/MultiSelect";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
-const API_URL_SUBURBS = `${process.env.REACT_APP_API_BASE_URL}/property/suburbs`;
-const API_URL_DISTRICTS = `${process.env.REACT_APP_API_BASE_URL}/property/districts`;
-const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/property/search`;
+const API_URL_SUBURBS = `${process.env.REACT_APP_API_BASE_URL}/api/property/suburbs`;
+const API_URL_DISTRICTS = `${process.env.REACT_APP_API_BASE_URL}/api/property/districts`;
+const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/api/property/search`;
 
 export default function Properties() {
   const [sortField, setSortField] = useState(null); // 'suburb', 'district', 'price', 'landArea'
@@ -44,8 +45,7 @@ export default function Properties() {
     };
   
     console.log("User submitted:", formData);
-  
-    setLoading(true);
+
     try {
       const response = await axios.post(API_URL_SEARCH, formData);
       setSearchResults(response.data.data);
@@ -55,7 +55,15 @@ export default function Properties() {
       setLoading(false); // <- make sure you include this
     }
   };
-  
+
+  const routerLocation = useLocation(); // ✅ rename to avoid conflict
+
+  useEffect(() => {
+    if (!loadingDistricts && !loadingSuburbs) {
+      handleSearch();
+    }
+  }, [routerLocation.pathname, loadingDistricts, loadingSuburbs]);
+
   const fetchList = async (API_URL_SEARCH, setData, setLoading) => {
     try {
       setLoading(true);
@@ -64,10 +72,11 @@ export default function Properties() {
       });
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-  
+      
       // Map here if needed
       const formatted = data.map(d => ({ value: d, label: d }));
       setData(formatted);
+      
   
     } catch (err) {
       console.error("Fetch error:", err);
@@ -265,15 +274,15 @@ return (
     {loading ? (
       <p className= "pl-6">Loading...</p>
     ) : (
-      <div className="h-[600px] overflow-y-auto mt-6">
+      <div className="h-[600px] overflow-y-auto mt-6 px-6">
   {sortedResults.length === 0 ? (
     <p className="text-gray-500 pl-6">Start your searching journey.</p>
   ) : (
-    <div className={`grid gap-6 ${!sortField ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+    <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
       {sortedResults.map((item, index) => (
         <div
           key={index}
-          className={`bg-white rounded-lg shadow p-4 ${
+          className={`bg-white rounded-lg shadow p-2 ${
             sortField ? 'flex flex-row items-start gap-4' : ''
           }`}
         >
@@ -287,10 +296,10 @@ return (
           />
 
           {/* Text Content */}
-          <div className={`${sortField ? 'flex-1' : 'mt-3'}`}>
+          <div className={`${sortField ? 'flex-1' : 'mt-3' }`}>
             <h3 className="font-semibold">{item.address}</h3>
             <p className="text-sm text-gray-500">
-              Land: {item.land_area_m2} m²
+              Land Area: {item.land_area_m2} m²
             </p>
             <p className="text-sm text-gray-500">
               Suburb: {item.suburb}, District: {item.district}
@@ -301,9 +310,7 @@ return (
               </p>
             )}
             <p className="mt-2 font-medium text-blue-600">
-              {item.pricing_method
-                ? item.pricing_method
-                : `$${item.final_price ? Number(item.final_price).toLocaleString() : 'N/A'}`}
+              {item.pricing_method}
             </p>
             <a
               href={item.realestate_url}

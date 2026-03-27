@@ -9,7 +9,10 @@ import {
     cv_date_textField, 
     cv_value_textField, 
     cv_valuetField, 
-    pricingMethodField } from './commonfields.js';
+    pricingMethodField,
+    district, 
+    suburb
+ } from './commonfields.js';
 
 export const addressLandAreaSchema = Yup.object({
   address: addressField,
@@ -20,7 +23,9 @@ export const newpropertySchema = Yup.object({
     realestate_url: realestateURLField,
     image_url: imageURLField,
     address: addressField,
-    land_area_m2: landAreaField
+    land_area_m2: landAreaField,
+    district: district,
+    suburb: suburb
 })
 
 export const propertyURLSchema = Yup.object({

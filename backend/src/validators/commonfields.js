@@ -38,3 +38,11 @@ export const cv_valuetField = Yup.number()
 
 export const pricingMethodField = Yup.mixed()
   .required('pricing_method is required');
+
+export const district = Yup.string()
+  .trim()
+  .required('district required');
+
+export const suburb = Yup.string()
+  .trim()
+  .required('suburb required');

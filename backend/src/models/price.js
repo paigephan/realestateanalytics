@@ -21,7 +21,7 @@ export const insertPropertyPrice = async (data) => {
 export const selectPricebyID = async (data) => {
     const { property_id } = data;
 
-    const query = "SELECT price FROM property_sale_price WHERE id = $1 order by created_at desc limit 1";
+    const query = "SELECT pricing_method FROM property_sale_price WHERE id = $1 order by created_at desc limit 1";
     const values = [property_id];
     const result = await pool.query(query, values);
 

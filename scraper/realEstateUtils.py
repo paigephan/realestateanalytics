@@ -22,3 +22,27 @@ def parse_cv_value(raw_value):
         return int(float(raw_value.replace(",", "")) * multiplier)
     except ValueError:
         return None
+
+# utils.py
+
+def extract_suburb_district(address: str):
+    """
+    Extracts suburb and district from a NZ address and capitalizes each word.
+    
+    Parameters:
+        address (str): Full property address, expected format "Street, Suburb, District"
+        
+    Returns:
+        tuple: (suburb, district) - each word capitalized
+    """
+    if not address:
+        return "", ""
+    
+    # Split by comma and strip whitespace
+    parts = [p.strip() for p in address.split(",") if p.strip()]
+
+    # Use negative indexing safely and capitalize each word
+    suburb = parts[-2].title() if len(parts) >= 2 else ""
+    district = parts[-1].title() if len(parts) >= 1 else ""
+    
+    return suburb, district
