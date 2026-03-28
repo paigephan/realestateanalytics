@@ -25,6 +25,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Serve frontend build
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Fallback to index.html for SPA
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Test localhost:3000
 app.get("/", (req, res) => {res.send("API is running...");});
 
