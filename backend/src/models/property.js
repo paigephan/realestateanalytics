@@ -76,35 +76,43 @@ export const updatePropertyURLByID = async (data) => {
 export const selectRandomImageURLs = async () => {
 
   const query = `
-    SELECT TOP 5 a.image_url 
-    FROM property_info a
-    JOIN property_sale_price sp ON a.id = sp.id
-    WHERE sp.price <= 500000
-    ORDER BY NEWID()
-    
+    SELECT image_url FROM (
+      SELECT TOP 5 a.image_url 
+      FROM property_info a
+      JOIN property_sale_price sp ON a.id = sp.id
+      WHERE sp.price <= 500000
+      ORDER BY NEWID()
+    ) t1
+
     UNION ALL
 
-    SELECT TOP 5 a.image_url 
-    FROM property_info a
-    JOIN property_sale_price sp ON a.id = sp.id
-    WHERE sp.price <= 1000000 AND sp.price > 500000
-    ORDER BY NEWID()
-    
+    SELECT image_url FROM (
+      SELECT TOP 5 a.image_url 
+      FROM property_info a
+      JOIN property_sale_price sp ON a.id = sp.id
+      WHERE sp.price > 500000 AND sp.price <= 1000000
+      ORDER BY NEWID()
+    ) t2
+
     UNION ALL
 
-    SELECT TOP 5 a.image_url 
-    FROM property_info a
-    JOIN property_sale_price sp ON a.id = sp.id
-    WHERE sp.price <= 2000000 AND sp.price > 1000000
-    ORDER BY NEWID()
-    
+    SELECT image_url FROM (
+      SELECT TOP 5 a.image_url 
+      FROM property_info a
+      JOIN property_sale_price sp ON a.id = sp.id
+      WHERE sp.price > 1000000 AND sp.price <= 2000000
+      ORDER BY NEWID()
+    ) t3
+
     UNION ALL
 
-    SELECT TOP 5 a.image_url 
-    FROM property_info a
-    JOIN property_sale_price sp ON a.id = sp.id
-    WHERE sp.price > 2000000
-    ORDER BY NEWID();
+    SELECT image_url FROM (
+      SELECT TOP 5 a.image_url 
+      FROM property_info a
+      JOIN property_sale_price sp ON a.id = sp.id
+      WHERE sp.price > 2000000
+      ORDER BY NEWID()
+    ) t4;
   `;
 
   try {
