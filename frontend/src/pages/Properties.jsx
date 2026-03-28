@@ -67,9 +67,7 @@ export default function Properties() {
   const fetchList = async (API_URL_SEARCH, setData, setLoading) => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL_SEARCH, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
-      });
+      const response = await fetch(API_URL_SEARCH);
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
       

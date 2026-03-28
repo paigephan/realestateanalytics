@@ -6,7 +6,7 @@ import express from 'express';
 import cors from "cors";
 
 // Set's our port to the PORT environment variable, or 3000 by default if the env is not configured.
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 1433;
 
 // Make sure our database is up and running
 import {connectDB} from './config/db.js';
