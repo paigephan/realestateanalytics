@@ -26,13 +26,16 @@ app.use(express.json());
 app.use(cors());
 
 // Serve frontend build
-const path = require('path');
+import path from 'path';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Fallback to index.html for SPA
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
 
 // Test localhost:3000
 app.get("/", (req, res) => {res.send("API is running...");});
@@ -51,3 +54,7 @@ app.use('/api/propertyprice', propertyprice);
 
 app.listen(PORT, () => console.log(`Server running on port meomeo ${PORT}`));
 
+// ✅ SPA fallback LAST (use app.use instead of app.get)
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+  });
