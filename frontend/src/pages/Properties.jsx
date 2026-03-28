@@ -272,10 +272,10 @@ return (
     {loading ? (
       <p className= "pl-6">Loading...</p>
     ) : (
-      <div className="h-[600px] overflow-y-auto mt-6 px-6">
-  {sortedResults.length === 0 ? (
+      <div className="max-h-screen overflow-y-auto mt-6 px-6">
+    {sortedResults.length === 0 ? (
     <p className="text-gray-500 pl-6">Start your searching journey.</p>
-  ) : (
+    ) : (
     <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
       {sortedResults.map((item, index) => (
         <div
