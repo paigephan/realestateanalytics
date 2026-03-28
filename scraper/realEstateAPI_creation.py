@@ -43,6 +43,7 @@ def update_cv(property_id, result, headers):
 
         res = requests.patch(f"{api_base_url}/api/propertycv/{property_id}", json=payload, headers=headers)
 
-        if res.json().get("error") == "Property not found":
+        print("testing", res.json().get("error"))
+        if res.json().get("error"):
             payload["property_id"] = property_id
             requests.post(f"{api_base_url}/api/propertycv", json=payload, headers=headers)

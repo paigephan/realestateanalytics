@@ -9,28 +9,39 @@ export const insertPropertyCV = async (data) => {
     } = data;
   
     const query = `
-        INSERT INTO cv_most_recent (id, cv_date_text, cv_value_text, cv_value)
-        VALUES ($1, $2, $3, $4)
+      INSERT INTO cv_most_recent (id, cv_date_text, cv_value_text, cv_value)
+      OUTPUT INSERTED.*
+      VALUES (@property_id, @cv_date_text, @cv_value_text, @cv_value);
     `;
   
-    const values = [property_id, cv_date_text, cv_value_text, cv_value];
+    const result = await pool.request()
+      .input('property_id', property_id)
+      .input('cv_date_text', cv_date_text)
+      .input('cv_value_text', cv_value_text)
+      .input('cv_value', cv_value)
+      .query(query);
   
-    const result = await pool.query(query, values);
-    return result.rows[0];
-};
+    return result.recordset[0]; // equivalent to rows[0]
+  };
 
 export const selectCVDate = async (data) => {
     const { property_id } = data;
 
-    const query = "SELECT cv_date_text FROM cv_most_recent WHERE id = $1";
-    const values = [property_id];
-    const result = await pool.query(query, values);
+    const query = `
+        SELECT cv_date_text 
+        FROM cv_most_recent 
+        WHERE id = @property_id
+    `;
 
-    // return empty JSON if no row found
-    return result.rows[0] || {};
+    const result = await pool.request()
+        .input('property_id', property_id)
+        .query(query);
+
+    // return empty object if no row found
+    return result.recordset[0] || {};
 };
 
-export const updateCVDateValuebyID = async (data) => {
+  export const updateCVDateValuebyID = async (data) => {
     const {
       cv_date_text,
       cv_value_text,
@@ -39,17 +50,21 @@ export const updateCVDateValuebyID = async (data) => {
     } = data;
   
     const query = `
-        UPDATE cv_most_recent
-        SET cv_date_text = $1,
-            cv_value_text = $2,
-            cv_value = $3,
-            updated_at = CURRENT_TIMESTAMP
-        where id = $4
-        returning *
+      UPDATE cv_most_recent
+      SET cv_date_text = @cv_date_text,
+          cv_value_text = @cv_value_text,
+          cv_value = @cv_value,
+          updated_at = GETDATE()
+      OUTPUT INSERTED.*
+      WHERE id = @property_id;
     `;
   
-    const values = [cv_date_text, cv_value_text, cv_value, property_id];
+    const result = await pool.request()
+      .input('cv_date_text', cv_date_text)
+      .input('cv_value_text', cv_value_text)
+      .input('cv_value', cv_value)
+      .input('property_id', property_id)
+      .query(query);
   
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return result.recordset[0]; // must not include || {} as crawler use this logic
   };

@@ -1,0 +1,43 @@
+-- CREATE TABLE property_info (
+--     id INT IDENTITY(1,1) PRIMARY KEY,
+--     realestate_url NVARCHAR(500) NOT NULL,
+--     image_url NVARCHAR(500) NOT NULL,
+--     address NVARCHAR(255) NOT NULL,
+--     district NVARCHAR(255) NOT NULL,
+--     suburb NVARCHAR(255) NOT NULL,
+--     land_area_m2 DECIMAL(10,2) NOT NULL,
+--     created_at DATETIME DEFAULT GETDATE(),
+--     updated_at DATETIME DEFAULT GETDATE(),
+--     CONSTRAINT UQ_property UNIQUE (address, land_area_m2)
+-- );
+
+-- drop table if exists property_listing
+-- CREATE TABLE property_listing (
+--     page_no INT NOT NULL,
+--     realestate_url NVARCHAR(500) NOT NULL,
+--     listing_date DATETIME DEFAULT GETDATE(),
+--     PRIMARY KEY (realestate_url, listing_date)  -- no CONSTRAINT keyword
+-- );
+
+-- CREATE TABLE cv_most_recent (
+--     id INT PRIMARY KEY,
+--     cv_date_text NVARCHAR(255) NOT NULL,
+--     cv_value_text NVARCHAR(255) NOT NULL,
+--     cv_value DECIMAL(15,2) NOT NULL,
+--     created_at DATETIME DEFAULT GETDATE(),
+--     updated_at DATETIME DEFAULT GETDATE(),
+--     CONSTRAINT FK_cv_property_info FOREIGN KEY (id)
+--         REFERENCES property_info(id)
+--         ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE property_sale_price (
+--     id INT NOT NULL,
+--     pricing_method NVARCHAR(255) NOT NULL,
+--     price DECIMAL(15,2),
+--     created_at DATETIME DEFAULT GETDATE(),
+--     CONSTRAINT PK_property_sale_price PRIMARY KEY (id, pricing_method, created_at),
+--     CONSTRAINT FK_property_info_sale FOREIGN KEY (id)
+--         REFERENCES property_info(id)
+--         ON DELETE CASCADE
+-- );

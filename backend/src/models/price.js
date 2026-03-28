@@ -1,30 +1,40 @@
 import { pool } from '../config/db.js';
 
 export const insertPropertyPrice = async (data) => {
-    const {
-      property_id,
-      pricing_method,
-      price,
-    } = data;
-  
-    const query = `
-        INSERT INTO property_sale_price (id, pricing_method, price)
-        VALUES ($1, $2, $3)
-    `;
-  
-    const values = [property_id, pricing_method, price];
-  
-    const result = await pool.query(query, values);
-    return result.rows[0];
-  };
+  const {
+    property_id,
+    pricing_method,
+    price,
+  } = data;
+
+  const query = `
+    INSERT INTO property_sale_price (id, pricing_method, price)
+    OUTPUT INSERTED.*
+    VALUES (@property_id, @pricing_method, @price);
+  `;
+
+  const result = await pool.request()
+    .input('property_id', property_id)
+    .input('pricing_method', pricing_method)
+    .input('price', price)
+    .query(query);
+
+  return result.recordset[0];
+};
 
 export const selectPricebyID = async (data) => {
-    const { property_id } = data;
+  const { property_id } = data;
 
-    const query = "SELECT pricing_method FROM property_sale_price WHERE id = $1 order by created_at desc limit 1";
-    const values = [property_id];
-    const result = await pool.query(query, values);
+  const query = `
+    SELECT TOP 1 pricing_method
+    FROM property_sale_price
+    WHERE id = @property_id
+    ORDER BY created_at DESC
+  `;
 
-    // return empty JSON if no row found
-    return result.rows[0] || {};
+  const result = await pool.request()
+    .input('property_id', property_id)
+    .query(query);
+
+  return result.recordset[0] || {};
 };

@@ -40,6 +40,8 @@ def main(url, headers):
             headers
         )
 
+        
+
     else:
         requests.patch(
             f"{api_base_url}/api/property/{property_id}/url",

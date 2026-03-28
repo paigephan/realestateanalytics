@@ -1,27 +1,30 @@
-// config files (DB connection, server config)
-import pkg from 'pg';
+import sql from 'mssql';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { Pool } = pkg;
-
-// Create connection pool
-export const pool = new Pool({
+// Connection configuration
+const config = {
   user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+  server: process.env.DB_HOST, 
+  database: process.env.DB_NAME,
+  port: Number(process.env.PORT),
+  options: {
+    encrypt: true,
+    trustServerCertificate: true, // for local dev without SSL
+  },
+};
 
-// Test connection (no leak)
+// Create pool
+export const pool = new sql.ConnectionPool(config);
+
+// Connect once
 export const connectDB = async () => {
-    try {
-      const client = await pool.connect();
-      console.log('PostgreSQL database connected');
-      client.release(); // ✅ VERY IMPORTANT
-    } catch (err) {
-      console.error('DB connection error', err);
-      process.exit(1);
-    }
-  };
+  try {
+    await pool.connect();
+    console.log('Microsoft SQL Server database connected');
+  } catch (err) {
+    console.error('DB connection error', err);
+    process.exit(1);
+  }
+};
