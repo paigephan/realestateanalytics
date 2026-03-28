@@ -12,8 +12,8 @@ router.get('/searchid',apiKeyAuth, getPropertyIDByAddressLandArea);
 router.post('/',apiKeyAuth, createNewPropertyInfo);
 router.patch('/:id/url',apiKeyAuth, updatePropertyURL);
 router.get('/randomimages', getRandomImageURLs);
-router.get('/suburbs', apiKeyAuth, getDistinctSuburb);
-router.get('/districts', apiKeyAuth, getDistinctDistrict);
+router.get('/suburbs', getDistinctSuburb);
+router.get('/districts', getDistinctDistrict);
 router.get('/suburbsfromdistricts', apiKeyAuth, getDistinctSuburbsFromDistricts);
 router.post("/search", searchPropertiesController);
 
