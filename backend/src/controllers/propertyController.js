@@ -1,7 +1,7 @@
 import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
           updatePropertyURLByID, selectRandomImageURLs, 
           selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
-          searchProperties} from '../models/property.js';
+          searchProperties, select20latestHouseSales} from '../models/property.js';
 import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
           searchPropertiesSchema } from '../validators/groupingvalidators.js';
 
@@ -184,5 +184,18 @@ export const searchPropertiesController = async (req, res) => {
       success: false,
       error: "Server error"
     });
+  }
+};
+
+export const get20latestHouseSales = async (req, res) => {
+  try {
+  
+      // Call model
+      const result = await select20latestHouseSales();
+      
+      res.json(result);
+  
+  } catch (err) {
+      res.status(500).json({ error: err.message });
   }
 };

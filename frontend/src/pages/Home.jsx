@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+  const navigate = useNavigate();
+
   const [images, setImages] = useState([]);          
   const [currentIndex, setCurrentIndex] = useState(0);
   const API_URL_IMAGE = `${process.env.REACT_APP_API_BASE_URL}/api/property/randomimages`;
@@ -61,12 +64,14 @@ function Home() {
     {/* ✅ Buttons */}
     <div className="flex gap-4 justify-center">
       {/* Primary button */}
-      <button className="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition">
+      <button className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
        Calculate Home Buy Ability 
       </button>
 
       {/* Secondary button */}
-      <button className="border border-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition">
+      <button 
+        onClick={() => navigate("/properties")}
+        className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
         Get Home Recommendations
       </button>
     </div>

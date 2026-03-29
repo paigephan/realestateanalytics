@@ -244,6 +244,7 @@ export const searchProperties = async ({
       combined AS (
           SELECT 
               p.id,
+              p.created_at,
               p.realestate_url,
               p.image_url, 
               p.address, 
@@ -258,6 +259,10 @@ export const searchProperties = async ({
           FROM property_info p
           LEFT JOIN cv_most_recent c ON p.id = c.id
           LEFT JOIN latest_sale ls ON ls.id = p.id
+          JOIN property_listing l on l.realestate_url = p.realestate_url
+          where 
+          p.property_type = 'House'
+          and l.listing_date >= DATEADD(HOUR, -24, GETDATE())
       )
       SELECT *
       FROM combined
@@ -268,13 +273,47 @@ export const searchProperties = async ({
         ${max_price != null ? 'AND final_price <= @max_price' : ''}
         ${min_area != null ? 'AND land_area_m2 >= @min_area' : ''}
         ${max_area != null ? 'AND land_area_m2 <= @max_area' : ''}
-        AND property_type = 'House'
+        ORDER BY created_at ASC
     `;
 
     const result = await request.query(query);
     return result.recordset;
   } catch (err) {
     console.error('Error searching properties:', err);
+    return [];
+  }
+};
+
+export const select20latestHouseSales = async () => {
+  const query = `
+    SELECT TOP 20
+    p.created_at,
+    p.id,
+    p.realestate_url,
+    p.image_url, 
+    p.address, 
+    p.land_area_m2, 
+    p.suburb,
+    p.district,
+    c.cv_date_text,
+    c.cv_value,
+    ls.pricing_method,
+    ls.price,
+    COALESCE(ls.price, c.cv_value) AS final_price
+    FROM property_info p
+    JOIN cv_most_recent c ON p.id = c.id
+    JOIN property_sale_price ls ON ls.id = p.id
+    JOIN property_listing l on l.realestate_url = p.realestate_url
+    where p.property_type = 'House'
+    and l.listing_date >= DATEADD(HOUR, -24, GETDATE())
+    ORDER BY p.created_at ASC;
+  `;
+
+  try {
+    const result = await pool.request().query(query);
+    return result.recordset; // ✅ better: return actual data
+  } catch (err) {
+    console.error("Error select20latestHouseSale:", err);
     return [];
   }
 };
