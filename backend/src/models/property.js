@@ -213,13 +213,13 @@ export const searchProperties = async ({
 
     // Add parameters dynamically if arrays are non-empty
     let suburbFilter = '';
-    if (suburbs && suburbs.length > 0) {
+    if (suburbs && suburbs.length > 0 && !suburbs.includes('ALL')) {
       suburbs.forEach((s, i) => request.input(`suburb${i}`, s));
       suburbFilter = `AND suburb IN (${suburbs.map((_, i) => `@suburb${i}`).join(', ')})`;
     }
 
     let districtFilter = '';
-    if (districts && districts.length > 0) {
+    if (districts && districts.length > 0 && !districts.includes('ALL')) {
       districts.forEach((d, i) => request.input(`district${i}`, d));
       districtFilter = `AND district IN (${districts.map((_, i) => `@district${i}`).join(', ')})`;
     }
