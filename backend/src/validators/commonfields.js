@@ -5,6 +5,7 @@ export const addressField = Yup.string()
   .required('address is required');
 
 export const landAreaField = Yup.number()
+  .nullable()
   .typeError('land_area_m2 must be a number')
 
 export const realestateURLField = Yup.string()
