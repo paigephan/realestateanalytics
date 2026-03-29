@@ -268,6 +268,7 @@ export const searchProperties = async ({
         ${max_price != null ? 'AND final_price <= @max_price' : ''}
         ${min_area != null ? 'AND land_area_m2 >= @min_area' : ''}
         ${max_area != null ? 'AND land_area_m2 <= @max_area' : ''}
+        AND property_type = 'House'
     `;
 
     const result = await request.query(query);
