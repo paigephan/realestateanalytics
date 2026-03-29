@@ -2,16 +2,16 @@
 --     id INT IDENTITY(1,1) PRIMARY KEY,
 --     realestate_url NVARCHAR(500) NOT NULL,
 --     image_url NVARCHAR(500) NOT NULL,
+--     property_type NVARCHAR(255) NOT NULL,
 --     address NVARCHAR(255) NOT NULL,
 --     district NVARCHAR(255) NOT NULL,
 --     suburb NVARCHAR(255) NOT NULL,
---     land_area_m2 DECIMAL(10,2) NOT NULL,
+--     land_area_m2 DECIMAL(10,2),
 --     created_at DATETIME DEFAULT GETDATE(),
 --     updated_at DATETIME DEFAULT GETDATE(),
 --     CONSTRAINT UQ_property UNIQUE (address, land_area_m2)
 -- );
 
--- drop table if exists property_listing
 -- CREATE TABLE property_listing (
 --     page_no INT NOT NULL,
 --     realestate_url NVARCHAR(500) NOT NULL,

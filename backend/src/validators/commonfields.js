@@ -46,3 +46,7 @@ export const district = Yup.string()
 export const suburb = Yup.string()
   .trim()
   .required('suburb required');
+
+export const property_type = Yup.string()
+  .trim()
+  .required('property_type required');

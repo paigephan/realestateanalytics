@@ -35,11 +35,11 @@ def main(url, headers):
             "address": result["address"],
             "land_area_m2": result["land_area_m2"],
             "district": district,
-            "suburb": suburb
+            "suburb": suburb,
+            "property_type": result["property_type"]
             }, 
             headers
         )
-
         
 
     else:
@@ -73,14 +73,14 @@ if __name__ == "__main__":
         HEADERS = {"x-api-key": SCRAPER_API_KEY} 
         
         # Step 2: Get total pages to crawl
-        BASE_URL = "https://www.realestate.co.nz/residential/sale/auckland/house?pm=1"
+        BASE_URL = "https://www.realestate.co.nz/residential/sale/auckland/house"
         PAGES = totalpages(driver, wait, BASE_URL)
         print("Total Pages:", PAGES)
         # PAGES = 95  # For testing
 
         # Step 3: run through all pages
         seen_urls = set()
-        for page in range(141, PAGES + 1): # remember to edit back to 1
+        for page in range(1, PAGES + 1): # remember to edit back to 1
             url = f"{BASE_URL}?page={page}"
             print(f"Scraping {url}")
 

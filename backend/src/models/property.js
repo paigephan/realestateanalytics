@@ -29,14 +29,15 @@ export const insertPropertyInfo = async ({
   land_area_m2,
   district,
   suburb,
+  property_type,
 }) => {  
 
   const query = `
     INSERT INTO property_info 
-      (realestate_url, image_url, address, land_area_m2, district, suburb)
+      (realestate_url, image_url, address, land_area_m2, district, suburb, property_type)
     OUTPUT INSERTED.*
     VALUES 
-      (@realestate_url, @image_url, @address, @land_area_m2, @district, @suburb);
+      (@realestate_url, @image_url, @address, @land_area_m2, @district, @suburb, @property_type);
   `;
 
   const result = await pool.request()
@@ -46,6 +47,7 @@ export const insertPropertyInfo = async ({
     .input('land_area_m2', land_area_m2)
     .input('district', district)
     .input('suburb', suburb)
+    .input('property_type', property_type)
     .query(query);
 
   return result.recordset[0];

@@ -34,17 +34,32 @@ def scrape_propertydetails(driver, wait, url):
         if match:
             price_value = int(match.group(1).replace(",", ""))
 
+    ### Features-icons
+    elements = soup.select('[data-test="features-icons"] span.leading-\\[-1\\]')
+
+    # Property type (first item)
+    property_type = None
+    if elements:
+        property_type = elements[0].get_text(strip=True).capitalize()
+
     # Land area
     land_area_value = None
-    elements = soup.select('[data-test="features-icons"] span.leading-\\[-1\\]')
     for el in elements:
-        text = el.get_text(strip=True)
-        if text.endswith("m2"):
-            try:
+        text = el.get_text(strip=True).lower()
+
+        try:
+            if text.endswith("m2"):
                 land_area_value = float(text.replace("m2", "").strip())
-            except ValueError:
-                pass
-            break
+                break
+
+            elif text.endswith("ha"):
+                # 1 hectare = 10,000 m²
+                value = float(text.replace("ha", "").strip())
+                land_area_value = value * 10000
+                break
+
+        except ValueError:
+            pass
 
     # CV
     cv_date, cv_value_raw, cv_value = None, None, None
@@ -63,6 +78,7 @@ def scrape_propertydetails(driver, wait, url):
     return {
         "url": url,
         "image_url": image_url,
+        "property_type": property_type,
         "address": address,
         "pricing_method": pricing_method,
         "price": price_value,

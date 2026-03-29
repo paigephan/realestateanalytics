@@ -11,7 +11,8 @@ import {
     cv_valuetField, 
     pricingMethodField,
     district, 
-    suburb
+    suburb,
+    property_type
  } from './commonfields.js';
 
 export const addressLandAreaSchema = Yup.object({
@@ -25,7 +26,8 @@ export const newpropertySchema = Yup.object({
     address: addressField,
     land_area_m2: landAreaField,
     district: district,
-    suburb: suburb
+    suburb: suburb,
+    property_type: property_type
 })
 
 export const propertyURLSchema = Yup.object({
