@@ -1,23 +1,22 @@
-// export default function Properties() {
-//     return <h1 className="text-2xl font-bold">Properties Page</h1>;
-//   }
-
 import { useEffect, useState } from "react";
 import MultiSelect from "../components/MultiSelect";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
 
 const API_URL_SUBURBS = `${process.env.REACT_APP_API_BASE_URL}/api/property/suburbs`;
 const API_URL_DISTRICTS = `${process.env.REACT_APP_API_BASE_URL}/api/property/districts`;
 const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/api/property/search`;
+const API_URL_LATESTSALES = `${process.env.REACT_APP_API_BASE_URL}/api/property/latesthousesales`;
 
 export default function Properties() {
+  // Sorting
   const [sortField, setSortField] = useState(null); // 'suburb', 'district', 'price', 'landArea'
   const [sortOrder, setSortOrder] = useState("asc"); // 'asc' or 'desc'
 
+  // Data
   const [results, setSearchResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   
+  // Filters
   const [districts, setDistricts] = useState([]);
   const [selectedDistricts, setSelectedDistricts] = useState([]); // user selection
 
@@ -33,8 +32,35 @@ export default function Properties() {
   const [loadingSuburbs, setLoadingSuburbs] = useState(true);
   const [loadingDistricts, setLoadingDistricts] = useState(true);
 
-  const handleSearch = async () => {
+  // --- Helper: check if filters are empty ---
+  const isFilterEmpty = () =>
+  selectedDistricts.length === 0 &&
+  selectedSuburbs.length === 0 &&
+  !minPrice &&
+  !maxPrice &&
+  !minLandArea &&
+  !maxLandArea;
+
+  // --- Fetch search results (latest sales fallback included) ---
+  const fetchResults = async (url, method = "get", data = null) => {
     setLoading(true);
+    try {
+      const res = await axios({
+        url,
+        method,
+        data,
+      });
+      // console.log("Response:", res.data);
+      setSearchResults(Array.isArray(res.data.data) ? res.data.data : []);
+    } catch (err) {
+      console.error("fetchResults error:", err);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // --- Handle search button click ---
+  const handleSearch = async () => {
     const formData = {
       districts: selectedDistricts.map(d => d.value),
       suburbs: selectedSuburbs.map(s => s.value),
@@ -43,46 +69,39 @@ export default function Properties() {
       min_area: minLandArea || null,
       max_area: maxLandArea || null,
     };
-  
-    console.log("User submitted:", formData);
-
-    try {
-      const response = await axios.post(API_URL_SEARCH, formData);
-      setSearchResults(response.data.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false); // <- make sure you include this
+    if (isFilterEmpty()) {
+      fetchResults(API_URL_LATESTSALES);
+    } else {
+      fetchResults(API_URL_SEARCH, "post", formData);
     }
   };
 
-  const routerLocation = useLocation(); // ✅ rename to avoid conflict
-
+  // Fetch latest sales on page load or route change
   useEffect(() => {
-    if (!loadingDistricts && !loadingSuburbs) {
-      handleSearch();
-    }
-  }, [routerLocation.pathname, loadingDistricts, loadingSuburbs]);
+    fetchResults(API_URL_LATESTSALES);
+  }, []);
 
-  const fetchList = async (API_URL_SEARCH, setData, setLoading) => {
+  // Fetch districts and suburbs
+  const fetchList = async (url, setData, setLoading) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch(API_URL_SEARCH);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-      const data = await response.json();
-      
-      // Map here if needed
-      const formatted = data.map(d => ({ value: d, label: d }));
+      const response = await axios.get(url);
+      const formatted = response.data.map(d => ({ value: d, label: d }));
       setData(formatted);
-      
-  
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Fetch list error:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Call API on mount for fetchList
+  useEffect(() => {
+    fetchList(API_URL_SUBURBS, setSuburbs, setLoadingSuburbs);
+    fetchList(API_URL_DISTRICTS, setDistricts, setLoadingDistricts);
+  }, []);
+
+  // sorting
   const sortedResults = [...results].sort((a, b) => {
     if (!sortField) return 0; // no sorting yet
   
@@ -114,11 +133,6 @@ export default function Properties() {
     return 0;
   });
 
-  // ✅ Call API on mount
-  useEffect(() => {
-    fetchList(API_URL_SUBURBS, setSuburbs, setLoadingSuburbs);
-    fetchList(API_URL_DISTRICTS, setDistricts, setLoadingDistricts);
-  }, []);
 return (
   <div>
   
@@ -206,7 +220,9 @@ return (
       {/* Search Button */}
       <div className="flex flex-col">
         <button className="mt-6 md:mt-0 w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-shadow shadow hover:shadow-lg"
-          onClick={handleSearch}>
+          onClick={handleSearch}
+          // onClick={() => fetchProperties(true)}
+          >
           Search
         </button>
       </div>
@@ -271,60 +287,65 @@ return (
     {/* Results Section*/}
     {loading ? (
       <p className= "pl-6">Loading...</p>
-    ) : (
+      ) : (
       <div className="max-h-screen overflow-y-auto mt-6 px-6">
-    {sortedResults.length === 0 ? (
-    <p className="text-gray-500 pl-6">Start your searching journey.</p>
-    ) : (
-    <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
-      {sortedResults.map((item, index) => (
-        <div
-          key={index}
-          className={`bg-white rounded-lg shadow p-2 ${
-            sortField ? 'flex flex-row items-start gap-4' : ''
-          }`}
-        >
-          {/* Image */}
-          <img
-            src={item.image_url}
-            alt="property"
-            className={`${
-              sortField ? 'w-48 h-32 object-cover rounded' : 'w-full h-48 object-cover rounded'
-            }`}
-          />
-
-          {/* Text Content */}
-          <div className={`${sortField ? 'flex-1' : 'mt-3' }`}>
-            <h3 className="font-semibold">{item.address}</h3>
-            <p className="text-sm text-gray-500">
-              Land Area: {item.land_area_m2} m²
-            </p>
-            <p className="text-sm text-gray-500">
-              Suburb: {item.suburb}, District: {item.district}
-            </p>
-            {item.cv_date_text && item.cv_value && (
-              <p className="text-sm text-gray-500">
-                CV ({item.cv_date_text}): ${Number(item.cv_value).toLocaleString()}
-              </p>
-            )}
-            <p className="mt-2 font-medium text-blue-600">
-              {item.pricing_method}
-            </p>
-            <a
-              href={item.realestate_url}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm text-blue-500 underline mt-2 inline-block"
+      {sortedResults.length === 0 ? (
+      <p className="text-gray-500 pl-6">Start your searching journey.</p>
+      ) : (
+      <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
+        {sortedResults.map((item, index) => {
+          // console.log("item:", item);
+          return (
+            <div
+              key={index}
+              className={`bg-white rounded-lg shadow p-2 ${
+                sortField ? 'flex flex-row items-start gap-4' : ''
+              }`}
             >
-              View Listing
-            </a>
+            {/* Image */}
+            <img
+              src={item.image_url}
+              alt="property"
+              className={`${
+                sortField ? 'w-48 h-32 object-cover rounded' : 'w-full h-48 object-cover rounded'
+              }`}
+            />
+
+            {/* Text Content */}
+            <div className={`${sortField ? 'flex-1' : 'mt-3' }`}>
+              <h3 className="font-semibold">{item.address}</h3>
+              <p className="text-sm text-gray-500">
+                Land Area: {item.land_area_m2} m²
+              </p>
+              <p className="text-sm text-gray-500">
+                Suburb: {item.suburb}, District: {item.district}
+              </p>
+              {item.cv_date_text && item.cv_value && (
+                <p className="text-sm text-gray-500">
+                  CV ({item.cv_date_text}): ${Number(item.cv_value).toLocaleString()}
+                </p>
+              )}
+              <p className="mt-2 font-medium text-blue-600">
+                {item.pricing_method}
+              </p>
+              <a
+                href={item.realestate_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-blue-500 underline mt-2 inline-block"
+              >
+                View Listing
+              </a>
+            </div>
           </div>
+          )}
+          
+          )}
         </div>
-      ))}
-    </div>
-  )}
-</div>
-    )}
+        )}
+        </div>
+      )
+    }
 
   </div>
 

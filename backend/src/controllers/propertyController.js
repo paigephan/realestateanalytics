@@ -193,8 +193,12 @@ export const get20latestHouseSales = async (req, res) => {
       // Call model
       const result = await select20latestHouseSales();
       
-      res.json(result);
-  
+      return res.status(200).json({
+        success: true,
+        count: result.length,
+        data: result
+      });
+      
   } catch (err) {
       res.status(500).json({ error: err.message });
   }

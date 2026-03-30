@@ -16,6 +16,6 @@ router.get('/suburbs', getDistinctSuburb);
 router.get('/districts', getDistinctDistrict);
 router.get('/suburbsfromdistricts', apiKeyAuth, getDistinctSuburbsFromDistricts);
 router.post("/search", searchPropertiesController);
-router.get('/latestHouseSales', get20latestHouseSales);
+router.get('/latesthousesales', get20latestHouseSales);
 
 export default router;
