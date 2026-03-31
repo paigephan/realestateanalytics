@@ -1,7 +1,7 @@
 import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
           updatePropertyURLByID, selectRandomImageURLs, 
           selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
-          searchProperties, select20latestHouseSales} from '../models/property.js';
+          searchProperties, select20latestHouseSales, selectSalesCount} from '../models/property.js';
 import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
           searchPropertiesSchema } from '../validators/groupingvalidators.js';
 
@@ -198,7 +198,24 @@ export const get20latestHouseSales = async (req, res) => {
         count: result.length,
         data: result
       });
+
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
+export const getSalesCount = async (req, res) => {
+  try {
+  
+      // Call model
+      const result = await selectSalesCount();
       
+      return res.status(200).json({
+        success: true,
+        count: result.length,
+        data: result
+      });
+
   } catch (err) {
       res.status(500).json({ error: err.message });
   }

@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 import requests
 import time
 from dotenv import load_dotenv
@@ -63,7 +64,7 @@ if __name__ == "__main__":
 
     # Step 1.1: Initiate driver
     driver = webdriver.Chrome()
-    wait = WebDriverWait(driver, 10)
+    wait = WebDriverWait(driver, 30)
 
     try:
         # Step 1.2: Load API key
@@ -81,15 +82,18 @@ if __name__ == "__main__":
         # Step 3: run through all pages
         seen_urls = set()
         for page in range(1, PAGES + 1): # remember to edit back to 1
-            url = f"{BASE_URL}?page={page}"
-            print(f"Scraping {url}")
+            page_url = f"{BASE_URL}?page={page}"
+            print(f"Scraping {page_url}")
 
-            driver.get(url)
+            driver.get(page_url)
+            wait.until(lambda d: d.execute_script(   # ✅ Wait for page load
+                "return document.readyState") == "complete")
 
             try:
 
                 # Step 4: crawl a list of properties on each page
                 page_data = scrape_propertylistings(driver, page, seen_urls)
+                print(f"Page {page}: found {len(page_data)} listings | seen_urls total: {len(seen_urls)}")
                 
                 # Step 5: run through each property
                 for data in page_data:
@@ -97,13 +101,15 @@ if __name__ == "__main__":
                     print("remaining pages:", PAGES - page)
                     # Step 6: update each listing of property to db
                     response = requests.post(f"{api_base_url}/api/listinghistory", json=data, headers=HEADERS)
-                    url = data.get('realestate_url')
+                    listing_url = data.get('realestate_url')
 
                     # Step 7: Crawl details of each property & update db accordingly
-                    main(url, HEADERS)
+                    main(listing_url, HEADERS)
 
             except Exception as e:
                 print(f"Error on page {page}: {e}")
+                with open("failed_pages.log", "a") as f:  # ✅ Log failures
+                    f.write(f"Page {page}: {e}\n")
 
     finally:
         # Step 8: Close driver

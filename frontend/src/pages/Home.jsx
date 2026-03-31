@@ -50,7 +50,7 @@ function Home() {
       Find Your Dream Home
     </h1>
 
-    <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-20">
+    <h2 className="text-4xl md:text-4xl font-bold leading-tight mb-20">
       With Data-Driven Insights into the NZ Property Market
     </h2>
 

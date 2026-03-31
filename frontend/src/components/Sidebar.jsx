@@ -10,7 +10,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="flex flex-col h-screen w-64 bg-gray-800 text-white">
+    <aside className="flex flex-col h-screen w-50 bg-gray-800 text-white">
       {/* Logo / Title */}
       <div className="p-6 text-2xl font-bold">
         RealyticsNZ

@@ -32,6 +32,8 @@ export default function Properties() {
   const [loadingSuburbs, setLoadingSuburbs] = useState(true);
   const [loadingDistricts, setLoadingDistricts] = useState(true);
 
+  const [note, setNote] = useState("");
+
   // --- Helper: check if filters are empty ---
   const isFilterEmpty = () =>
   selectedDistricts.length === 0 &&
@@ -71,14 +73,17 @@ export default function Properties() {
     };
     if (isFilterEmpty()) {
       fetchResults(API_URL_LATESTSALES);
+      setNote("Let’s begin your filtering journey to get more results.");
     } else {
       fetchResults(API_URL_SEARCH, "post", formData);
+      setNote("");
     }
   };
 
   // Fetch latest sales on page load or route change
   useEffect(() => {
     fetchResults(API_URL_LATESTSALES);
+    setNote("Let’s begin your filtering journey to get more results.");
   }, []);
 
   // Fetch districts and suburbs
@@ -231,6 +236,7 @@ return (
 
 
     {/* Sort Section*/}
+    <div>
     <div className="flex gap-2 mb-4 flex-wrap mt-6 pl-6">
     <button
       className="px-3 py-1 border rounded hover:bg-gray-100"
@@ -283,15 +289,17 @@ return (
       Clear Sort
     </button>
     </div>
+    {loading ? (
+      <p className="text-gray-500 pl-7">Loading...</p>
+    ) : sortedResults.length === 0 ? (
+      <p className="text-gray-500 pl-7">Total of {results.length} listings. Please recheck your filterings.</p>
+    ) : (
+      <p className="text-gray-500 pl-7">Total of {results.length} listings. {note}</p>
+    )}
+    </div>
 
     {/* Results Section*/}
-    {loading ? (
-      <p className= "pl-6">Loading...</p>
-      ) : (
       <div className="max-h-screen overflow-y-auto mt-6 px-6">
-      {sortedResults.length === 0 ? (
-      <p className="text-gray-500 pl-6">Start your searching journey.</p>
-      ) : (
       <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
         {sortedResults.map((item, index) => {
           // console.log("item:", item);
@@ -342,11 +350,7 @@ return (
           
           )}
         </div>
-        )}
         </div>
-      )
-    }
-
   </div>
 
 );

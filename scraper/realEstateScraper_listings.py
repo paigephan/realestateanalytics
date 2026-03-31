@@ -32,6 +32,9 @@ def scrape_propertylistings(driver, page, seen_urls):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     listings = soup.select("a[href*='/residential/sale/']")
 
+    total_found = len(listings)
+    print(f"Total listings found in page {page}: {total_found} ")
+
     for listing in listings:
         link = listing.get("href")
         if link:

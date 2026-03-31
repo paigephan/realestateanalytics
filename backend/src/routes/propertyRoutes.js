@@ -3,7 +3,9 @@ import express from 'express';
 import { getPropertyIDByAddressLandArea, createNewPropertyInfo, 
         updatePropertyURL, getRandomImageURLs, getDistinctSuburb, 
         getDistinctDistrict, getDistinctSuburbsFromDistricts,
-        searchPropertiesController, get20latestHouseSales} from '../controllers/propertyController.js';
+        searchPropertiesController, get20latestHouseSales,
+        getSalesCount
+        } from '../controllers/propertyController.js';
 import { apiKeyAuth } from '../middlewares/apiKeyAuth.js';
 
 const router = express.Router();
@@ -17,5 +19,7 @@ router.get('/districts', getDistinctDistrict);
 router.get('/suburbsfromdistricts', apiKeyAuth, getDistinctSuburbsFromDistricts);
 router.post("/search", searchPropertiesController);
 router.get('/latesthousesales', get20latestHouseSales);
+router.get('/latesthousesales', get20latestHouseSales);
+router.get('/salescount', getSalesCount);
 
 export default router;

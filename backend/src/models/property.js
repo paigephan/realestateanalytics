@@ -241,6 +241,12 @@ export const searchProperties = async ({
           ) sp2
           ON sp1.id = sp2.id AND sp1.created_at = sp2.max_created
       ),
+      earliest_listing AS (
+        SELECT realestate_url
+        FROM property_listing
+        WHERE listing_date >= DATEADD(HOUR, -24, GETDATE())
+        GROUP BY realestate_url
+      ),
       combined AS (
           SELECT 
               p.id,
@@ -259,10 +265,9 @@ export const searchProperties = async ({
           FROM property_info p
           LEFT JOIN cv_most_recent c ON p.id = c.id
           LEFT JOIN latest_sale ls ON ls.id = p.id
-          JOIN property_listing l on l.realestate_url = p.realestate_url
+          JOIN earliest_listing l on l.realestate_url = p.realestate_url
           where 
           p.property_type = 'House'
-          and l.listing_date >= DATEADD(HOUR, -24, GETDATE())
       )
       SELECT *
       FROM combined
@@ -314,6 +319,28 @@ export const select20latestHouseSales = async () => {
     return result.recordset; // ✅ better: return actual data
   } catch (err) {
     console.error("Error select20latestHouseSale:", err);
+    return [];
+  }
+};
+
+// Returns sales count grouped by suburb and district
+export const selectSalesCount = async (req, res) => {
+  const query = `
+      with all_listing AS (
+        SELECT DISTINCT realestate_url
+        FROM property_listing
+      )
+      select p.suburb, p.district, count (p.id) as 'sales_count' from property_info p 
+      inner join all_listing l on l.realestate_url = p.realestate_url
+      where p.property_type = 'House'
+      group by suburb, district
+  `;
+
+  try {
+    const result = await pool.request().query(query);
+    return result.recordset; // ✅ better: return actual data
+  } catch (err) {
+    console.error("Error get AnalyticsData:", err);
     return [];
   }
 };
