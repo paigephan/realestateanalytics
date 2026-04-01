@@ -10,10 +10,10 @@ const GEOJSON_URL = "/data/statistical-area-2025.geojson";
 const SUBURB_NAME_KEY = "SA22025__1";
 
 const COLOR_THRESHOLDS = [
-  { min: 50, color: "#1e3a8a" },
-  { min: 30,  color: "#1d4ed8" },
-  { min: 20,  color: "#3b82f6" },
-  { min: 10,  color: "#93c5fd" },
+  { min: 20, color: "#1e3a8a" },
+  { min: 15,  color: "#1d4ed8" },
+  { min: 10,  color: "#3b82f6" },
+  { min: 5,  color: "#93c5fd" },
   { min: 0,  color: "#dbeafe" },
 ];
 const COLOR_DEFAULT = "#f3f4f6";
