@@ -9,11 +9,11 @@ load_dotenv()
 
 # Get the API base URL
 api_base_url = os.environ.get("SCRAPER_API_BASE_URL")
+api_googlecloud_url = os.environ.get("GOOGLE_CLOUD_API_KEY")
 
 # =========================
 # CONFIG
 # =========================
-API_KEY = "AIzaSyD09bzyHwhTmW2qzZPZE-mWpmhEctBC_UQ"
 GEOJSON_PATH = "/Users/blokparti/Documents/5. UOA/web_project/frontend/public/data/statistical-area-2025.geojson"
 
 
@@ -24,7 +24,7 @@ def geocode_address(address):
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {
         "address": address,
-        "key": API_KEY
+        "key": api_googlecloud_url
     }
 
     try:
