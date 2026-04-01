@@ -244,7 +244,7 @@ export const searchProperties = async ({
       earliest_listing AS (
         SELECT realestate_url
         FROM property_listing
-        WHERE listing_date >= DATEADD(HOUR, -24, GETDATE())
+        WHERE listing_date >= DATEADD(HOUR, -168, GETDATE())
         GROUP BY realestate_url
       ),
       combined AS (
@@ -291,27 +291,38 @@ export const searchProperties = async ({
 
 export const select20latestHouseSales = async () => {
   const query = `
-    SELECT TOP 20
-    p.created_at,
-    p.id,
-    p.realestate_url,
-    p.image_url, 
-    p.address, 
-    p.land_area_m2, 
-    p.suburb,
-    p.district,
-    c.cv_date_text,
-    c.cv_value,
-    ls.pricing_method,
-    ls.price,
-    COALESCE(ls.price, c.cv_value) AS final_price
-    FROM property_info p
-    JOIN cv_most_recent c ON p.id = c.id
-    JOIN property_sale_price ls ON ls.id = p.id
-    JOIN property_listing l on l.realestate_url = p.realestate_url
-    where p.property_type = 'House'
-    and l.listing_date >= DATEADD(HOUR, -24, GETDATE())
-    ORDER BY p.created_at ASC;
+  WITH earliest_listing AS (
+    SELECT 
+        realestate_url,
+        MIN(listing_date) AS earliest_listing_date
+    FROM property_listing
+    WHERE listing_date >= DATEADD(HOUR, -168, GETDATE())
+    GROUP BY realestate_url
+  )
+
+  SELECT TOP 20
+      p.created_at,
+      p.id,
+      p.realestate_url,
+      p.image_url, 
+      p.address, 
+      p.land_area_m2, 
+      p.suburb,
+      p.district,
+      c.cv_date_text,
+      c.cv_value,
+      ls.pricing_method,
+      ls.price,
+      COALESCE(ls.price, c.cv_value) AS final_price
+      FROM property_info p
+      INNER JOIN cv_most_recent c 
+          ON p.id = c.id
+      LEFT JOIN property_sale_price ls 
+          ON ls.id = p.id
+      INNER JOIN earliest_listing l 
+          ON l.realestate_url = p.realestate_url
+      WHERE p.property_type = 'House'
+      ORDER BY l.earliest_listing_date ASC;
   `;
 
   try {
