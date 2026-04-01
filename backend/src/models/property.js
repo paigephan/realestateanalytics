@@ -76,45 +76,35 @@ export const updatePropertyURLByID = async (data) => {
 };
 
 export const selectRandomImageURLs = async () => {
-
   const query = `
-    SELECT image_url FROM (
-      SELECT TOP 5 a.image_url 
+    WITH price_buckets AS (
+      SELECT 
+        a.image_url,
+        NTILE(4) OVER (
+          ORDER BY CASE
+            WHEN sp.price <= 500000         THEN 1
+            WHEN sp.price <= 1000000        THEN 2
+            WHEN sp.price <= 2000000        THEN 3
+            ELSE                                 4
+          END, NEWID()
+        ) AS bucket,
+        ROW_NUMBER() OVER (
+          PARTITION BY CASE
+            WHEN sp.price <= 500000         THEN 1
+            WHEN sp.price <= 1000000        THEN 2
+            WHEN sp.price <= 2000000        THEN 3
+            ELSE                                 4
+          END
+          ORDER BY NEWID()
+        ) AS rn
       FROM property_info a
       JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price <= 500000
-      ORDER BY NEWID()
-    ) t1
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT TOP 5 a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 500000 AND sp.price <= 1000000
-      ORDER BY NEWID()
-    ) t2
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT TOP 5 a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 1000000 AND sp.price <= 2000000
-      ORDER BY NEWID()
-    ) t3
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT TOP 5 a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 2000000
-      ORDER BY NEWID()
-    ) t4;
+      WHERE a.image_url IS NOT NULL
+        AND a.property_type = 'House'
+    )
+    SELECT image_url
+    FROM price_buckets
+    WHERE rn <= 5;
   `;
 
   try {
