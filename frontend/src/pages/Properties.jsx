@@ -139,7 +139,7 @@ export default function Properties() {
   });
 
 return (
-  <div>
+  <div className="h-screen overflow-hidden flex flex-col">
   
     {/* Search Section*/}
     <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-end p-6 bg-white shadow-md rounded-lg">
@@ -299,7 +299,7 @@ return (
     </div>
 
     {/* Results Section*/}
-      <div className="max-h-screen overflow-y-auto mt-6 px-6">
+      <div className="flex-1 overflow-y-auto mt-6 px-6">
       <div className={`grid ${!sortField ? 'grid-cols-1 md:grid-cols-2 gap-6' : 'grid-cols-1 gap-2'}`}>
         {sortedResults.map((item, index) => {
           // console.log("item:", item);
