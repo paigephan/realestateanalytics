@@ -63,10 +63,6 @@ function Home() {
 
     {/* ✅ Buttons */}
     <div className="flex gap-4 justify-center">
-      {/* Primary button */}
-      <button className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
-       Calculate Home Buy Ability 
-      </button>
 
       {/* Secondary button */}
       <button 
@@ -74,6 +70,15 @@ function Home() {
         className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
         Get Home Recommendations
       </button>
+      
+      {/* Primary button */}
+      <button 
+      onClick={() => navigate("/analytics")}
+      className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
+       {/* Calculate Home Buy Ability  */}
+       View Analytics Insights
+      </button>
+
     </div>
 
 

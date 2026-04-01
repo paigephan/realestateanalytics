@@ -1,11 +1,157 @@
 import { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
 import { Chart } from "chart.js/auto";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
 
 const API_URL_ANALYTICS = `${process.env.REACT_APP_API_BASE_URL}/api/property/salescount`;
+const GEOJSON_URL = "/data/statistical-area-2025.geojson";
+const SUBURB_NAME_KEY = "SA22025__1";
 
+const COLOR_THRESHOLDS = [
+  { min: 10, color: "#1e3a8a" },
+  { min: 5,  color: "#1d4ed8" },
+  { min: 3,  color: "#3b82f6" },
+  { min: 2,  color: "#93c5fd" },
+  { min: 0,  color: "#dbeafe" },
+];
+const COLOR_DEFAULT = "#f3f4f6";
+
+const LEGEND_ITEMS = [
+  { color: "#1e3a8a", label: "10+" },
+  { color: "#1d4ed8", label: "5–10" },
+  { color: "#3b82f6", label: "3–5" },
+  { color: "#93c5fd", label: "2–3" },
+  { color: "#dbeafe", label: "1–2" },
+  { color: "#f3f4f6", label: "No data" },
+];
+
+// --- Helpers ---
+const getColor = (count) => {
+  const threshold = COLOR_THRESHOLDS.find(({ min }) => count > min);
+  return threshold ? threshold.color : COLOR_DEFAULT;
+};
+
+const getSalesCount = (analyticsData, suburbName) => {
+  if (!suburbName) return 0;
+  const match = analyticsData.find(
+    (d) => d.suburb?.toLowerCase() === suburbName.toLowerCase()
+  );
+  return match ? Number(match.sales_count) : 0;
+};
+
+// --- Choropleth Layer ---
+function ChoroplethLayer({ geoJson, analyticsData }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!geoJson || !analyticsData?.length) return;
+
+    const layer = L.geoJSON(geoJson, {
+      style: (feature) => {
+        const count = getSalesCount(analyticsData, feature.properties[SUBURB_NAME_KEY]);
+        return {
+          fillColor: getColor(count),
+          fillOpacity: 0.6,
+          weight: 1,
+          color: "#666",
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        const name = feature.properties[SUBURB_NAME_KEY];
+        const count = getSalesCount(analyticsData, name);
+      
+        layer.bindTooltip(
+          `<div style="font-size:13px">
+            <strong>${name}</strong><br/>
+            Sales: <span style="color:#1d4ed8">${count}</span>
+          </div>`,
+          { 
+            sticky: true,
+            opacity: 1,
+            className: "custom-tooltip"
+          }
+        );
+      },
+    }).addTo(map);
+
+    layer.bringToFront();
+
+    return () => map.removeLayer(layer);
+  }, [geoJson, analyticsData, map]);
+
+  return null;
+}
+
+// --- Chart Configs ---
+const buildDistrictChartConfig = (labels, values) => ({
+  type: "bar",
+  data: {
+    labels,
+    datasets: [{
+      label: "Sales Count",
+      data: values,
+      backgroundColor: "rgba(59, 130, 246, 0.7)",
+      borderRadius: 4,
+    }],
+  },
+  options: {
+    responsive: true,
+    aspectRatio: 1.25,  // ← lower number = taller chart (default is 2)
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "House Sales Volume by District",
+        font: { size: 14, weight: "bold" },
+      },
+    },
+    scales: {
+      y: { beginAtZero: true },
+      x: { ticks: { maxRotation: 30, font: { size: 11 } } },
+    },
+  },
+});
+
+const buildSuburbChartConfig = (top20) => ({
+  type: "bar",
+  data: {
+    labels: top20.map((d) => d.suburb),
+    datasets: [{
+      label: "Sales Count",
+      data: top20.map((d) => Number(d.sales_count)),
+      backgroundColor: "rgba(16, 185, 129, 0.7)",
+      borderRadius: 4,
+    }],
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "Top 20 Suburbs by House Sales Volume",
+        font: { size: 14, weight: "bold" },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const item = top20[context.dataIndex];
+            return ` ${context.parsed.x} sales — ${item.district}`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: { beginAtZero: true },
+      y: { ticks: { font: { size: 11 } } },
+    },
+  },
+});
+
+// --- Main Component ---
 export default function Analytics() {
   const [analyticsData, setAnalyticsData] = useState([]);
   const [geoJson, setGeoJson] = useState(null);
@@ -16,13 +162,13 @@ export default function Analytics() {
   const districtChartInstance = useRef(null);
   const suburbChartInstance = useRef(null);
 
-  // --- Fetch analytics data ---
+  // Fetch analytics data
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const res = await axios.get(API_URL_ANALYTICS);
-        setAnalyticsData(res.data.data);
+        setAnalyticsData(res.data.data ?? []);
       } catch (err) {
         console.error("Analytics fetch error:", err);
       } finally {
@@ -32,11 +178,11 @@ export default function Analytics() {
     fetchData();
   }, []);
 
-  // --- Fetch GeoJSON boundaries ---
+  // Fetch GeoJSON
   useEffect(() => {
     const fetchGeo = async () => {
       try {
-        const res = await axios.get("data/nz-suburbs.geojson");
+        const res = await axios.get(GEOJSON_URL);
         setGeoJson(res.data);
       } catch (err) {
         console.error("GeoJSON fetch error:", err);
@@ -45,148 +191,35 @@ export default function Analytics() {
     fetchGeo();
   }, []);
 
-  // --- Build district bar chart ---
+  // Build district chart
   useEffect(() => {
-    if (!analyticsData || analyticsData.length === 0) return;
+    if (!analyticsData?.length) return;
 
-    // Aggregate by district
     const districtMap = {};
     analyticsData.forEach(({ district, sales_count }) => {
-      districtMap[district] = (districtMap[district] || 0) + Number(sales_count);
+      if (district) districtMap[district] = (districtMap[district] || 0) + Number(sales_count);
     });
 
     const sorted = Object.entries(districtMap).sort((a, b) => b[1] - a[1]);
     const labels = sorted.map(([d]) => d);
     const values = sorted.map(([, v]) => v);
 
-    if (districtChartInstance.current) districtChartInstance.current.destroy();
-
-    districtChartInstance.current = new Chart(districtChartRef.current, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Sales Count",
-            data: values,
-            backgroundColor: "rgba(59, 130, 246, 0.7)",
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: "Sales Volume by District",
-            font: { size: 14, weight: "bold" },
-          },
-        },
-        scales: {
-          y: { beginAtZero: true },
-          x: {
-            ticks: {
-              maxRotation: 30,
-              font: { size: 11 },
-            },
-          },
-        },
-      },
-    });
+    districtChartInstance.current?.destroy();
+    districtChartInstance.current = new Chart(districtChartRef.current, buildDistrictChartConfig(labels, values));
   }, [analyticsData]);
 
-  // --- Build top 20 suburbs horizontal bar chart ---
+  // Build suburb chart
   useEffect(() => {
-    if (!analyticsData || analyticsData.length === 0) return;
+    if (!analyticsData?.length) return;
 
     const top20 = [...analyticsData]
+      .filter((d) => d.suburb)
       .sort((a, b) => Number(b.sales_count) - Number(a.sales_count))
       .slice(0, 20);
 
-    if (suburbChartInstance.current) suburbChartInstance.current.destroy();
-
-    suburbChartInstance.current = new Chart(suburbChartRef.current, {
-      type: "bar",
-      data: {
-        labels: top20.map((d) => d.suburb),
-        datasets: [
-          {
-            label: "Sales Count",
-            data: top20.map((d) => Number(d.sales_count)),
-            backgroundColor: "rgba(16, 185, 129, 0.7)",
-            borderRadius: 4,
-          },
-        ],
-      },
-      options: {
-        indexAxis: "y", // horizontal bar
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: "Top 20 Suburbs by Sales Volume",
-            font: { size: 14, weight: "bold" },
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const item = top20[context.dataIndex];
-                return ` ${context.parsed.x} sales — ${item.district}`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: { beginAtZero: true },
-          y: { ticks: { font: { size: 11 } } },
-        },
-      },
-    });
+    suburbChartInstance.current?.destroy();
+    suburbChartInstance.current = new Chart(suburbChartRef.current, buildSuburbChartConfig(top20));
   }, [analyticsData]);
-
-  // --- Choropleth helpers ---
-  const getSalesCount = (suburbName) => {
-    const match = analyticsData.find(
-      (d) => d.suburb.toLowerCase() === suburbName?.toLowerCase()
-    );
-    return match ? Number(match.sales_count) : 0;
-  };
-
-  const getColor = (count) => {
-    return count > 50 ? "#1e3a8a"
-         : count > 30 ? "#1d4ed8"
-         : count > 20 ? "#3b82f6"
-         : count > 10 ? "#93c5fd"
-         : count > 0  ? "#dbeafe"
-                      : "#f3f4f6";
-  };
-
-  const styleFeature = (feature) => ({
-    fillColor: getColor(getSalesCount(feature.properties.name)), // adjust property key to match your geojson
-    weight: 1,
-    color: "white",
-    fillOpacity: 0.7,
-  });
-
-  const onEachFeature = (feature, layer) => {
-    const count = getSalesCount(feature.properties.name);
-    layer.bindTooltip(
-      `<strong>${feature.properties.name}</strong><br/>Sales: ${count}`,
-      { sticky: true }
-    );
-  };
-
-  const legendItems = [
-    { color: "#1e3a8a", label: "50+" },
-    { color: "#1d4ed8", label: "30–50" },
-    { color: "#3b82f6", label: "20–30" },
-    { color: "#93c5fd", label: "10–20" },
-    { color: "#dbeafe", label: "1–10" },
-    { color: "#f3f4f6", label: "No data" },
-  ];
 
   if (loading) return <p className="p-6">Loading analytics...</p>;
 
@@ -194,15 +227,14 @@ export default function Analytics() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Sales Analytics</h1>
 
-      {/* Row 1 - District Chart + Choropleth Map */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-        {/* Left - District Bar Chart */}
+        {/* District Bar Chart */}
         <div className="bg-white rounded-lg shadow p-4">
           <canvas ref={districtChartRef} />
         </div>
 
-        {/* Right - Choropleth Map */}
+        {/* Choropleth Map */}
         <div className="bg-white rounded-lg shadow p-4">
           <MapContainer
             center={[-36.8485, 174.7633]}
@@ -210,21 +242,17 @@ export default function Analytics() {
             style={{ height: "400px", width: "100%" }}
           >
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              // attribution='&copy; <a href="https://carto.com/">CARTO</a>'
               attribution="&copy; OpenStreetMap contributors"
+              zIndex={1}
             />
-            {geoJson && (
-              <GeoJSON
-                data={geoJson}
-                style={styleFeature}
-                onEachFeature={onEachFeature}
-              />
-            )}
+            <ChoroplethLayer geoJson={geoJson} analyticsData={analyticsData} />
           </MapContainer>
 
           {/* Legend */}
           <div className="flex gap-4 mt-3 text-sm flex-wrap">
-            {legendItems.map(({ color, label }) => (
+            {LEGEND_ITEMS.map(({ color, label }) => (
               <div key={label} className="flex items-center gap-1">
                 <div className="w-4 h-4 rounded" style={{ backgroundColor: color }} />
                 <span>{label}</span>
@@ -235,7 +263,7 @@ export default function Analytics() {
 
       </div>
 
-      {/* Row 2 - Top 20 Suburbs Horizontal Bar Chart */}
+      {/* Top 20 Suburbs Chart */}
       <div className="bg-white rounded-lg shadow p-4">
         <canvas ref={suburbChartRef} />
       </div>
