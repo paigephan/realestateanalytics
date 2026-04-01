@@ -6,6 +6,7 @@
 --     address NVARCHAR(255) NOT NULL,
 --     district NVARCHAR(255) NOT NULL,
 --     suburb NVARCHAR(255) NOT NULL,
+--     geojson_suburb NVARCHAR(255),
 --     land_area_m2 DECIMAL(10,2),
 --     created_at DATETIME DEFAULT GETDATE(),
 --     updated_at DATETIME DEFAULT GETDATE(),

@@ -1,4 +1,5 @@
 import { insertPropertyCV, updateCVDateValuebyID, selectCVDate } from '../models/capitalvalue.js';
+// import { insertPropertyCV, updateCVDateValuebyID, selectCVDate } from '../models_local/capitalvalue.js';
 import { propertyCVSchema } from '../validators/groupingvalidators.js';
 
 export const createNewPropertyCV = async (req, res) => {

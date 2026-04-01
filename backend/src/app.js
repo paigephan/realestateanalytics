@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 1433;
 
 // Make sure our database is up and running
 import {connectDB} from './config/db.js';
+// import {connectDB} from './config/db_local.js';
+
 connectDB();
 
 // Creates the express server

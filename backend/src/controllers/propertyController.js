@@ -1,7 +1,13 @@
 import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
           updatePropertyURLByID, selectRandomImageURLs, 
           selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
-          searchProperties, select20latestHouseSales, selectSalesCount} from '../models/property.js';
+          searchProperties, select20latestHouseSales, selectSalesCount,
+          selectAllAddresses, updatePropertyGeoJsonSuburb} from '../models/property.js';
+// import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
+//             updatePropertyURLByID, selectRandomImageURLs, 
+//             selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
+//             searchProperties, select20latestHouseSales, selectSalesCount,
+//             selectAllAddresses} from '../models_local/property.js';
 import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
           searchPropertiesSchema } from '../validators/groupingvalidators.js';
 
@@ -218,5 +224,58 @@ export const getSalesCount = async (req, res) => {
 
   } catch (err) {
       res.status(500).json({ error: err.message });
+  }
+};
+
+export const getAllAddresses = async (req, res) => {
+  try {
+  
+      // Call model
+      const result = await selectAllAddresses();
+      
+      return res.status(200).json({
+        success: true,
+        count: result.length,
+        data: result
+      });
+
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+};
+
+
+export const updateGeoJsonSuburb = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { geojson_suburb } = req.body;
+
+    const propertyId = parseInt(id, 10);
+
+    if (isNaN(propertyId)) {
+      return res.status(400).json({ error: "Invalid property ID" });
+    }
+
+    if (!geojson_suburb) {
+      return res.status(400).json({ error: "geojson_suburb is required" });
+    }
+
+    const updatedGeoJsonSuburb = await updatePropertyGeoJsonSuburb({
+      geojson_suburb,
+      property_id: propertyId
+    });
+
+    if (!updatedGeoJsonSuburb) {
+      return res.status(404).json({ error: "Property not found" });
+    }
+
+    return res.status(200).json({
+      message: "GeoJson Suburb updated successfully",
+      data: updatedGeoJsonSuburb
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
   }
 };

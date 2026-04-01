@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../config/db_local.js';
 
 export const selectPropertyIDByAddressLandArea = async (data) => {
   const { address, land_area_m2 } = data;
@@ -114,15 +114,15 @@ export const selectRandomImageURLs = async () => {
 
 export const selectDistinctSuburb = async () => {
   const query = `
-    SELECT suburb
+    SELECT geojson_suburb as suburb
     FROM (
-        SELECT DISTINCT suburb FROM property_info
+        SELECT DISTINCT geojson_suburb FROM property_info
         UNION
-        SELECT 'All' AS suburb
+        SELECT 'All' AS geojson_suburb
     ) t
     ORDER BY 
-        CASE WHEN suburb = 'All' THEN 1 ELSE 0 END DESC,
-        suburb ASC;
+        CASE WHEN geojson_suburb = 'All' THEN 1 ELSE 0 END DESC,
+        geojson_suburb ASC;
   `;
 
   try {
@@ -192,7 +192,7 @@ export const searchProperties = async ({
     let suburbFilter = '';
     if (suburbs && suburbs.length > 0 && !suburbs.includes('All')) {
       const inClause = suburbs.map(() => `$${paramIndex++}`).join(', ');
-      suburbFilter = `AND suburb IN (${inClause})`;
+      suburbFilter = `AND geojson_suburb IN (${inClause})`;
       values.push(...suburbs);
     }
 
@@ -239,7 +239,7 @@ export const searchProperties = async ({
               p.image_url, 
               p.address, 
               p.land_area_m2, 
-              p.suburb,
+              p.geojson_suburb as suburb,
               p.district,
               c.cv_date_text,
               c.cv_value,
@@ -281,7 +281,7 @@ export const select20latestHouseSales = async () => {
       p.image_url, 
       p.address, 
       p.land_area_m2, 
-      p.suburb,
+      p.geojson_suburb as suburb,
       p.district,
       c.cv_date_text,
       c.cv_value,
@@ -312,11 +312,11 @@ export const selectSalesCount = async () => {
       SELECT DISTINCT realestate_url
       FROM property_listing
     )
-    SELECT p.suburb, p.district, COUNT(p.id) AS sales_count
+    SELECT p.geojson_suburb as suburb, p.district, COUNT(p.id) AS sales_count
     FROM property_info p 
     INNER JOIN all_listing l ON l.realestate_url = p.realestate_url
     WHERE p.property_type = 'House'
-    GROUP BY p.suburb, p.district;
+    GROUP BY p.geojson_suburb, p.district;
   `;
 
   try {
@@ -324,6 +324,21 @@ export const selectSalesCount = async () => {
     return result.rows;
   } catch (err) {
     console.error("Error get AnalyticsData:", err);
+    return [];
+  }
+};
+
+// Returns sales count grouped by suburb and district
+export const selectAllAddresses = async () => {
+  const query = `
+      select id, address from property_info
+  `;
+
+  try {
+    const result = await pool.query(query);
+    return result.rows;
+  } catch (err) {
+    console.error("Error get Addresses:", err);
     return [];
   }
 };

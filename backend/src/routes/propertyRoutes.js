@@ -4,7 +4,7 @@ import { getPropertyIDByAddressLandArea, createNewPropertyInfo,
         updatePropertyURL, getRandomImageURLs, getDistinctSuburb, 
         getDistinctDistrict, getDistinctSuburbsFromDistricts,
         searchPropertiesController, get20latestHouseSales,
-        getSalesCount
+        getSalesCount, getAllAddresses, updateGeoJsonSuburb
         } from '../controllers/propertyController.js';
 import { apiKeyAuth } from '../middlewares/apiKeyAuth.js';
 
@@ -21,5 +21,7 @@ router.post("/search", searchPropertiesController);
 router.get('/latesthousesales', get20latestHouseSales);
 router.get('/latesthousesales', get20latestHouseSales);
 router.get('/salescount', getSalesCount);
+router.get('/alladdresses', getAllAddresses);
+router.patch('/:id/geojsonsuburb', apiKeyAuth, updateGeoJsonSuburb);
 
 export default router;

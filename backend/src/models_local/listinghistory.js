@@ -1,4 +1,4 @@
-import { pool } from '../config/db.js';
+import { pool } from '../config/db_local.js';
 
 export const insertListing = async (data) => {
   const { page_no, realestate_url } = data;
