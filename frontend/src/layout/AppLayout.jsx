@@ -8,7 +8,8 @@ export default function AppLayout() {
       <Sidebar />
 
       {/* Main content / slideshow */}
-      <main className="flex-1">
+      {/* <main className="flex-1"> */}
+      <main className="ml-64 flex-1">
         <Outlet />
       </main>
     </div>

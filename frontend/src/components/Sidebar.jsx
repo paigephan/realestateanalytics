@@ -1,24 +1,26 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FiHome, FiUsers, FiBarChart } from "react-icons/fi";
+import { FiHome, FiUsers, FiBarChart, FiInfo } from "react-icons/fi";
+import Logo from "../assets/Logo.png"
 
 const Sidebar = () => {
   const menuItems = [
     { name: "Home", path: "/home", icon: <FiUsers /> },
     { name: "Properties", path: "/properties", icon: <FiHome /> },
     { name: "Analytics", path: "/analytics", icon: <FiBarChart /> },
+    { name: "About", path: "/about", icon: <FiInfo /> },
   ];
 
   return (
-    <div className="flex min-h-screen">
-    <aside className="flex flex-col self-stretch w-50 bg-gray-800 text-white">
+    <aside className="fixed top-0 left-0 h-screen w-64 bg-gray-800 text-white flex flex-col">
       {/* Logo / Title */}
-      <div className="p-6 text-2xl font-bold">
-        RealyticsNZ
+
+      <div className="flex items-center">
+        <img src={Logo} alt="RealyticsNZ logo" className="w-64" />
       </div>
 
       {/* Menu */}
-      <nav className="flex flex-col flex-1 mt-6">
+      <nav className="flex flex-col flex-1">
         {menuItems.map((item) => (
           <NavLink
             key={item.path}
@@ -36,7 +38,6 @@ const Sidebar = () => {
       </nav>
 
     </aside>
-    </div>
   );
 };
 

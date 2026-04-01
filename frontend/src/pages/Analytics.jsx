@@ -14,7 +14,7 @@ const COLOR_THRESHOLDS = [
   { min: 30,  color: "#1d4ed8" },
   { min: 20,  color: "#3b82f6" },
   { min: 10,  color: "#93c5fd" },
-  { min: 1,  color: "#dbeafe" },
+  { min: 0,  color: "#dbeafe" },
 ];
 const COLOR_DEFAULT = "#f3f4f6";
 

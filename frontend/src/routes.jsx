@@ -24,6 +24,7 @@ import AppLayout from "./layout/AppLayout";
 import Home from "./pages/Home";
 import Properties from "./pages/Properties";
 import Analytics from "./pages/Analytics";
+import AboutPage from "./pages/About";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="home" element={<Home />} />
           <Route path="properties" element={<Properties />} />
           <Route path="analytics" element={<Analytics />} />
+          <Route path="about" element={<AboutPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
