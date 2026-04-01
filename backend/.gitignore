@@ -3,3 +3,5 @@
 
 # Node modules (all installed npm packages)
 node_modules/
+
+.DS_Store
