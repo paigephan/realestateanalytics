@@ -10,6 +10,7 @@ const Sidebar = () => {
   ];
 
   return (
+    <div className="flex min-h-screen">
     <aside className="flex flex-col self-stretch w-50 bg-gray-800 text-white">
       {/* Logo / Title */}
       <div className="p-6 text-2xl font-bold">
@@ -35,6 +36,7 @@ const Sidebar = () => {
       </nav>
 
     </aside>
+    </div>
   );
 };
 
