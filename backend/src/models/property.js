@@ -191,7 +191,7 @@ export const checkDistinctSuburbsFromDistricts = async (data) => {
 };
 
 export const searchProperties = async ({
-  suburbs,
+  suburbs: geojson_suburbs,
   districts,
   min_price,
   max_price,
@@ -203,9 +203,9 @@ export const searchProperties = async ({
 
     // Add parameters dynamically if arrays are non-empty
     let suburbFilter = '';
-    if (suburbs && suburbs.length > 0 && !suburbs.includes('All')) {
-      suburbs.forEach((s, i) => request.input(`suburb${i}`, s));
-      suburbFilter = `AND geojson_suburb IN (${suburbs.map((_, i) => `@suburb${i}`).join(', ')})`;
+    if (geojson_suburbs && geojson_suburbs.length > 0 && !geojson_suburbs.includes('All')) {
+      geojson_suburbs.forEach((s, i) => request.input(`suburb${i}`, s));
+      suburbFilter = `AND suburb IN (${geojson_suburbs.map((_, i) => `@suburb${i}`).join(', ')})`;
     }
 
     let districtFilter = '';
