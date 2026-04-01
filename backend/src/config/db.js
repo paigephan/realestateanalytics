@@ -13,10 +13,26 @@ const config = {
     encrypt: true,
     trustServerCertificate: true, // for local dev without SSL
   },
+  connectionTimeout: 30000,
+  requestTimeout: 30000,
+  pool: {
+    min: 1,
+    max: 10,
+    idleTimeoutMillis: 30000,
+  },
 };
 
 // Create pool
 export const pool = new sql.ConnectionPool(config);
+
+// Keep-alive ping every 4 minutes
+setInterval(async () => {
+  try {
+    await pool.request().query('SELECT 1');
+  } catch (err) {
+    console.error('Keep-alive ping failed:', err);
+  }
+}, 4 * 60 * 1000);
 
 // Connect once
 export const connectDB = async () => {
