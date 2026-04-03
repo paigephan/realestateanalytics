@@ -47,6 +47,9 @@ app.use('/api/propertyprice', propertyprice);
 
 // ✅ SPA fallback LAST
 app.use((req, res) => {
+  if (MAINTENANCE_MODE) {
+    return res.sendFile(path.join(__dirname, '../public', 'maintenance.html'));
+  }
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
