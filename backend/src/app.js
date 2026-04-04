@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cors());
 
 // 🚧 MAINTENANCE MODE
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 app.use((req, res, next) => {
   if (MAINTENANCE_MODE) {
@@ -57,7 +57,8 @@ app.use((req, res) => {
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // ✅ DB connects separately — won't crash server if it fails
-import { connectDB } from './config/db.js';
+// import { connectDB } from './config/db.js';
+import { connectDB } from './config/db_local.js';
 
 connectDB().catch(err => {
   console.error('❌ DB connection failed:', err.message);

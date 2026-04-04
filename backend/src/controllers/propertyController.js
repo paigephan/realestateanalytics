@@ -1,13 +1,13 @@
-import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
-          updatePropertyURLByID, selectRandomImageURLs, 
-          selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
-          searchProperties, select20latestHouseSales, selectSalesCount,
-          selectAllAddresses, updatePropertyGeoJsonSuburb} from '../models/property.js';
 // import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
-//             updatePropertyURLByID, selectRandomImageURLs, 
-//             selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
-//             searchProperties, select20latestHouseSales, selectSalesCount,
-//             selectAllAddresses} from '../models_local/property.js';
+//           updatePropertyURLByID, selectRandomImageURLs, 
+//           selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
+//           searchProperties, select20latestHouseSales, selectSalesCount,
+//           selectAllAddresses, updatePropertyGeoJsonSuburb} from '../models/property.js';
+import {  selectPropertyIDByAddressLandArea, insertPropertyInfo, 
+            updatePropertyURLByID, selectRandomImageURLs, 
+            selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
+            searchProperties, select20latestHouseSales, selectSalesCount,
+            selectAllAddresses} from '../models_local/property.js';
 import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
           searchPropertiesSchema } from '../validators/groupingvalidators.js';
 

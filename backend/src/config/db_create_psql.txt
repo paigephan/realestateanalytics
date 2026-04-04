@@ -1,0 +1,48 @@
+-- CREATE TABLE public.property_info (
+--    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+--    realestate_url VARCHAR(500) NOT NULL,
+--    image_url VARCHAR(500) NOT NULL,
+--   property_type VARCHAR(255) NOT NULL,
+--    address VARCHAR(255) NOT NULL,
+--   district VARCHAR(255) NOT NULL,
+--   suburb VARCHAR(255) NOT NULL,
+--   geojson_suburb VARCHAR(255),
+--    land_area_m2 DECIMAL(10,2),
+--    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    UNIQUE (address, land_area_m2)
+-- );
+
+-- CREATE TABLE property_listing (
+--    page_no int not null,
+--    realestate_url VARCHAR(500) NOT NULL,
+--    listing_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    PRIMARY KEY (realestate_url, listing_date)
+-- )
+
+-- CREATE TABLE public.cv_most_recent (
+--    id INT PRIMARY KEY,
+--    cv_date_text VARCHAR(255) NOT NULL,
+--    cv_value_text VARCHAR(255) NOT NULL,
+--    cv_value DECIMAL(15,2) NOT NULL,
+--    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    CONSTRAINT fk_property_info
+--        FOREIGN KEY (id)
+--        REFERENCES public.property_info(id)
+--        ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE public.property_sale_price (
+--    id INT NOT NULL,
+--    pricing_method VARCHAR(255) NOT NULL,
+--    price DECIMAL(15,2),
+--    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--    PRIMARY KEY (id, pricing_method, created_at),
+--    CONSTRAINT fk_property_info_sale
+--        FOREIGN KEY (id)
+--        REFERENCES public.property_info(id)
+--        ON DELETE CASCADE
+-- );
+
+

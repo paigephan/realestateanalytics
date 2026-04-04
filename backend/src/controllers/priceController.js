@@ -1,5 +1,5 @@
-import { insertPropertyPrice, selectPricebyID } from '../models/price.js';
-// import { insertPropertyPrice, selectPricebyID } from '../models_local/price.js';
+// import { insertPropertyPrice, selectPricebyID } from '../models/price.js';
+import { insertPropertyPrice, selectPricebyID } from '../models_local/price.js';
 
 import { propertyPriceSchema} from '../validators/groupingvalidators.js';
 

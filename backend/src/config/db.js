@@ -25,14 +25,14 @@ const config = {
 // Create pool
 export const pool = new sql.ConnectionPool(config);
 
-// Keep-alive ping every 4 minutes
-setInterval(async () => {
-  try {
-    await pool.request().query('SELECT 1');
-  } catch (err) {
-    console.error('Keep-alive ping failed:', err);
-  }
-}, 4 * 60 * 1000);
+// // Keep-alive ping every 4 minutes
+// setInterval(async () => {
+//   try {
+//     await pool.request().query('SELECT 1');
+//   } catch (err) {
+//     console.error('Keep-alive ping failed:', err);
+//   }
+// }, 4 * 60 * 1000);
 
 // Connect once
 export const connectDB = async () => {

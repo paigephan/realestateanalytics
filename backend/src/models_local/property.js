@@ -64,43 +64,31 @@ export const updatePropertyURLByID = async (data) => {
 
 export const selectRandomImageURLs = async () => {
   const query = `
-    SELECT image_url FROM (
-      SELECT a.image_url 
+    WITH ranked AS (
+      SELECT 
+        a.image_url,
+        CASE 
+          WHEN sp.price <= 500000 THEN 1
+          WHEN sp.price <= 1000000 THEN 2
+          WHEN sp.price <= 2000000 THEN 3
+          ELSE 4
+        END AS price_bucket,
+        ROW_NUMBER() OVER (
+          PARTITION BY CASE 
+            WHEN sp.price <= 500000 THEN 1
+            WHEN sp.price <= 1000000 THEN 2
+            WHEN sp.price <= 2000000 THEN 3
+            ELSE 4
+          END
+          ORDER BY RANDOM()
+        ) AS rn
       FROM property_info a
       JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price <= 500000
-      ORDER BY RANDOM() LIMIT 5
-    ) t1
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 500000 AND sp.price <= 1000000
-      ORDER BY RANDOM() LIMIT 5
-    ) t2
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 1000000 AND sp.price <= 2000000
-      ORDER BY RANDOM() LIMIT 5
-    ) t3
-
-    UNION ALL
-
-    SELECT image_url FROM (
-      SELECT a.image_url 
-      FROM property_info a
-      JOIN property_sale_price sp ON a.id = sp.id
-      WHERE sp.price > 2000000
-      ORDER BY RANDOM() LIMIT 5
-    ) t4;
+    )
+    SELECT image_url
+    FROM ranked
+    WHERE rn <= 5
+    ORDER BY price_bucket, rn;
   `;
 
   try {
@@ -178,7 +166,7 @@ export const checkDistinctSuburbsFromDistricts = async (data) => {
 };
 
 export const searchProperties = async ({
-  suburbs,
+  suburbs: geojson_suburbs,
   districts,
   min_price,
   max_price,
@@ -187,70 +175,89 @@ export const searchProperties = async ({
 }) => {
   try {
     const values = [];
-    let paramIndex = 1;
+    const nextParam = () => `$${values.push(...arguments) || values.length}`;
 
+    // Build suburb filter
     let suburbFilter = '';
-    if (suburbs && suburbs.length > 0 && !suburbs.includes('All')) {
-      const inClause = suburbs.map(() => `$${paramIndex++}`).join(', ');
-      suburbFilter = `AND geojson_suburb IN (${inClause})`;
-      values.push(...suburbs);
+    if (geojson_suburbs && geojson_suburbs.length > 0 && !geojson_suburbs.includes('All')) {
+      const placeholders = geojson_suburbs.map(s => {
+        values.push(s);
+        return `$${values.length}`;
+      });
+      suburbFilter = `AND suburb IN (${placeholders.join(', ')})`;
     }
 
+    // Build district filter
     let districtFilter = '';
     if (districts && districts.length > 0 && !districts.includes('All')) {
-      const inClause = districts.map(() => `$${paramIndex++}`).join(', ');
-      districtFilter = `AND district IN (${inClause})`;
-      values.push(...districts);
+      const placeholders = districts.map(d => {
+        values.push(d);
+        return `$${values.length}`;
+      });
+      districtFilter = `AND district IN (${placeholders.join(', ')})`;
     }
 
+    // Build numeric filters
     let minPriceFilter = '';
-    if (min_price != null) { minPriceFilter = `AND final_price >= $${paramIndex++}`; values.push(min_price); }
+    if (min_price != null) {
+      values.push(min_price);
+      minPriceFilter = `AND final_price >= $${values.length}`;
+    }
 
     let maxPriceFilter = '';
-    if (max_price != null) { maxPriceFilter = `AND final_price <= $${paramIndex++}`; values.push(max_price); }
+    if (max_price != null) {
+      values.push(max_price);
+      maxPriceFilter = `AND final_price <= $${values.length}`;
+    }
 
     let minAreaFilter = '';
-    if (min_area != null) { minAreaFilter = `AND land_area_m2 >= $${paramIndex++}`; values.push(min_area); }
+    if (min_area != null) {
+      values.push(min_area);
+      minAreaFilter = `AND land_area_m2 >= $${values.length}`;
+    }
 
     let maxAreaFilter = '';
-    if (max_area != null) { maxAreaFilter = `AND land_area_m2 <= $${paramIndex++}`; values.push(max_area); }
+    if (max_area != null) {
+      values.push(max_area);
+      maxAreaFilter = `AND land_area_m2 <= $${values.length}`;
+    }
 
     const query = `
       WITH latest_sale AS (
-          SELECT sp1.id, sp1.pricing_method, sp1.price, sp1.created_at
-          FROM property_sale_price sp1
-          INNER JOIN (
-              SELECT id, MAX(created_at) AS max_created
-              FROM property_sale_price
-              GROUP BY id
-          ) sp2
-          ON sp1.id = sp2.id AND sp1.created_at = sp2.max_created
+        SELECT sp1.id, sp1.pricing_method, sp1.price, sp1.created_at
+        FROM property_sale_price sp1
+        INNER JOIN (
+          SELECT id, MAX(created_at) AS max_created
+          FROM property_sale_price
+          GROUP BY id
+        ) sp2 ON sp1.id = sp2.id AND sp1.created_at = sp2.max_created
       ),
       earliest_listing AS (
         SELECT realestate_url
         FROM property_listing
+        WHERE listing_date >= NOW() - INTERVAL '168 hours'
         GROUP BY realestate_url
       ),
       combined AS (
-          SELECT 
-              p.id,
-              p.created_at,
-              p.realestate_url,
-              p.image_url, 
-              p.address, 
-              p.land_area_m2, 
-              p.geojson_suburb as suburb,
-              p.district,
-              c.cv_date_text,
-              c.cv_value,
-              ls.pricing_method,
-              ls.price,
-              COALESCE(ls.price, c.cv_value) AS final_price
-          FROM property_info p
-          LEFT JOIN cv_most_recent c ON p.id = c.id
-          LEFT JOIN latest_sale ls ON ls.id = p.id
-          JOIN earliest_listing l ON l.realestate_url = p.realestate_url
-          WHERE p.property_type = 'House'
+        SELECT
+          p.id,
+          p.created_at,
+          p.realestate_url,
+          p.image_url,
+          p.address,
+          p.land_area_m2,
+          p.geojson_suburb AS suburb,
+          p.district,
+          c.cv_date_text,
+          c.cv_value,
+          ls.pricing_method,
+          ls.price,
+          COALESCE(ls.price, c.cv_value) AS final_price
+        FROM property_info p
+        LEFT JOIN cv_most_recent c ON p.id = c.id
+        LEFT JOIN latest_sale ls ON ls.id = p.id
+        JOIN earliest_listing l ON l.realestate_url = p.realestate_url
+        WHERE p.property_type = 'House'
       )
       SELECT *
       FROM combined
@@ -274,6 +281,15 @@ export const searchProperties = async ({
 
 export const select20latestHouseSales = async () => {
   const query = `
+    WITH earliest_listing AS (
+      SELECT 
+        realestate_url,
+        MIN(listing_date) AS earliest_listing_date
+      FROM property_listing
+      WHERE listing_date >= NOW() - INTERVAL '168 hours'
+      GROUP BY realestate_url
+    )
+
     SELECT
       p.created_at,
       p.id,
@@ -281,7 +297,7 @@ export const select20latestHouseSales = async () => {
       p.image_url, 
       p.address, 
       p.land_area_m2, 
-      p.geojson_suburb as suburb,
+      p.geojson_suburb AS suburb,
       p.district,
       c.cv_date_text,
       c.cv_value,
@@ -289,12 +305,12 @@ export const select20latestHouseSales = async () => {
       ls.price,
       COALESCE(ls.price, c.cv_value) AS final_price
     FROM property_info p
-    JOIN cv_most_recent c ON p.id = c.id
-    JOIN property_sale_price ls ON ls.id = p.id
-    JOIN property_listing l ON l.realestate_url = p.realestate_url
+    INNER JOIN cv_most_recent c ON p.id = c.id
+    LEFT JOIN property_sale_price ls ON ls.id = p.id
+    INNER JOIN earliest_listing l ON l.realestate_url = p.realestate_url
     WHERE p.property_type = 'House'
-    ORDER BY p.created_at ASC
-    LIMIT 20;
+    ORDER BY l.earliest_listing_date ASC
+    LIMIT 20
   `;
 
   try {
@@ -328,7 +344,6 @@ export const selectSalesCount = async () => {
   }
 };
 
-// Returns sales count grouped by suburb and district
 export const selectAllAddresses = async () => {
   const query = `
       select id, address from property_info
@@ -341,4 +356,23 @@ export const selectAllAddresses = async () => {
     console.error("Error get Addresses:", err);
     return [];
   }
+};
+
+export const updatePropertyGeoJsonSuburb = async (data) => {
+  const {
+    geojson_suburb,
+    property_id
+  } = data;
+
+  const query = `
+    UPDATE property_info 
+    SET geojson_suburb = $1,
+        updated_at = NOW()
+    WHERE id = $2 AND geojson_suburb IS NULL
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, [geojson_suburb, property_id]);
+
+  return result.rows[0] || {};
 };
