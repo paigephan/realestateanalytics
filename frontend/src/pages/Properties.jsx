@@ -139,7 +139,10 @@ export default function Properties() {
   });
 
 return (
-  <div className="h-screen overflow-hidden flex flex-col">
+  // Before
+  // <div className="h-screen overflow-hidden flex flex-col">
+  // After
+  <div className="min-h-screen md:h-screen md:overflow-hidden flex flex-col">
   
     {/* Search Section*/}
     <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-end p-6 bg-white shadow-md rounded-lg">
@@ -315,12 +318,12 @@ return (
               src={item.image_url}
               alt="property"
               className={`${
-                sortField ? 'w-48 h-32 object-cover rounded' : 'w-full h-48 object-cover rounded'
+                sortField ? 'w-24 h-24 md:w-48 md:h-32 object-cover rounded shrink-0' : 'w-full h-48 object-cover rounded'
               }`}
             />
 
             {/* Text Content */}
-            <div className={`${sortField ? 'flex-1' : 'mt-3' }`}>
+            <div className={`${sortField ? 'flex-1 min-w-0' : 'mt-3'}`}>
               <h3 className="font-semibold">{item.address}</h3>
               <p className="text-sm text-gray-500">
                 Land Area: {item.land_area_m2} m²

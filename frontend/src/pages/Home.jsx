@@ -40,53 +40,61 @@ function Home() {
   }
 
   return (
-    <div className="grid grid-cols-2 h-screen">
+    // Before
+    // <div className="grid grid-cols-2 h-screen">
+    // After
+    <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
       
       {/* Text side */}
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-    <div className="max-w-2xl mx-auto">
-    
-    <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5">
-      Find Your Dream Home
-    </h1>
+      {/* Before */}
+      {/* <div className="min-h-screen flex flex-col items-center justify-center text-center px-6"> */}
+      {/* After */}
+      <div className="flex flex-col items-center justify-center text-center px-6 py-16">
 
-    <h2 className="text-4xl md:text-4xl font-bold leading-tight mb-20">
-      With Data-Driven Insights into the NZ Property Market
-    </h2>
+        <div className="max-w-2xl mx-auto">
+        
+          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-5">
+            Find Your Dream Home
+          </h1>
 
-    <div className="gap-4 justify-center mb-20">
-    <p className="text-gray-600 text-lg leading-relaxed">
-      We provide sophisticated investors with analytics to navigate market volatility. 
-      Our data-driven approach ensures every budget is optimized for long-term growth.
-    </p>
-    </div>
+          <h2 className="text-4xl md:text-4xl font-bold leading-tight mb-20">
+            With Data-Driven Insights into the NZ Property Market
+          </h2>
 
-    {/* ✅ Buttons */}
-    <div className="flex gap-4 justify-center">
+          <div className="gap-4 justify-center mb-20">
+            <p className="text-gray-600 text-lg leading-relaxed">
+              We provide sophisticated investors with analytics to navigate market volatility. 
+              Our data-driven approach ensures every budget is optimized for long-term growth.
+            </p>
+          </div>
 
-      {/* Secondary button */}
-      <button 
-        onClick={() => navigate("/properties")}
-        className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
-        Get Home Recommendations
-      </button>
-      
-      {/* Primary button */}
-      <button 
-      onClick={() => navigate("/analytics")}
-      className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
-       {/* Calculate Home Buy Ability  */}
-       View Analytics Insights
-      </button>
+          {/* ✅ Buttons */}
+          <div className="flex gap-4 justify-center">
 
-    </div>
+            {/* Secondary button */}
+            <button 
+              onClick={() => navigate("/properties")}
+              className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
+              Get Home Recommendations
+            </button>
+            
+            {/* Primary button */}
+            <button 
+            onClick={() => navigate("/analytics")}
+            className="border border-gray-300 bg-gray-100 px-6 py-3 rounded-lg font-medium hover:bg-black hover:text-white transition">
+            {/* Calculate Home Buy Ability  */}
+            View Analytics Insights
+            </button>
 
-
-    </div>
-    </div>
+          </div>
+        </div>
+      </div>
 
       {/* Slideshow side */}
-      <div className="h-full relative">
+      {/* Before */}
+      {/* <div className="h-full relative"> */}
+      {/* After */}
+      <div className="h-64 md:h-full relative">
         {images.map((url, index) => (
           <img
             key={index}
