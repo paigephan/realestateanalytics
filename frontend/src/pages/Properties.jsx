@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import MultiSelect from "../components/MultiSelect";
 import axios from "axios";
 
-const API_URL_SUBURBS = `${process.env.REACT_APP_API_BASE_URL}/api/property/suburbs`;
-const API_URL_DISTRICTS = `${process.env.REACT_APP_API_BASE_URL}/api/property/districts`;
-const API_URL_SEARCH = `${process.env.REACT_APP_API_BASE_URL}/api/property/search`;
-const API_URL_LATESTSALES = `${process.env.REACT_APP_API_BASE_URL}/api/property/latesthousesales`;
+const API_URL_SUBURBS = `${import.meta.env.VITE_API_BASE_URL}/api/property/suburbs`;
+const API_URL_DISTRICTS = `${import.meta.env.VITE_API_BASE_URL}/api/property/districts`;
+const API_URL_SEARCH = `${import.meta.env.VITE_API_BASE_URL}/api/property/search`;
+const API_URL_LATESTSALES = `${import.meta.env.VITE_API_BASE_URL}/api/property/latesthousesales`;
 
 export default function Properties() {
 

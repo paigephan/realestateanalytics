@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
         # Step 3: run through all pages
         seen_urls = set()
-        for page in range(2, PAGES + 1): # remember to edit back to 1
+        for page in range(1, PAGES + 1): # remember to edit back to 1
             page_url = f"{BASE_URL}?page={page}"
             print(f"Scraping {page_url}")
 

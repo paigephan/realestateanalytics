@@ -5,7 +5,7 @@ import { Chart } from "chart.js/auto";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
 
-const API_URL_ANALYTICS = `${process.env.REACT_APP_API_BASE_URL}/api/property/salescount`;
+const API_URL_ANALYTICS = `${import.meta.env.VITE_API_BASE_URL}/api/property/salescount`;
 const GEOJSON_URL = "/data/statistical-area-2025.geojson";
 const SUBURB_NAME_KEY = "SA22025__1";
 

@@ -3,3 +3,29 @@ Page 2: 'str' object has no attribute 'get'
 Page 3: 'str' object has no attribute 'get'
 Page 4: 'str' object has no attribute 'get'
 Page 5: 'str' object has no attribute 'get'
+Page 3: Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: Unable to receive message from renderer
+  (Session info: chrome=146.0.7680.178); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidsessionidexception
+Stacktrace:
+0   chromedriver                        0x0000000102e5b99c cxxbridge1$str$ptr + 3160104
+1   chromedriver                        0x0000000102e53a28 cxxbridge1$str$ptr + 3127476
+2   chromedriver                        0x0000000102927904 _RNvCskE0kXQ3GIWk_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 75036
+3   chromedriver                        0x0000000102911df0 cxxbridge1$string$len + 4160
+4   chromedriver                        0x0000000102911b10 cxxbridge1$string$len + 3424
+5   chromedriver                        0x000000010290f6d4 chromedriver + 227028
+6   chromedriver                        0x00000001029101a0 chromedriver + 229792
+7   chromedriver                        0x000000010292ade8 _RNvCskE0kXQ3GIWk_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 88576
+8   chromedriver                        0x00000001029aefb0 _RNvCskE0kXQ3GIWk_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 629704
+9   chromedriver                        0x00000001029ae4d4 _RNvCskE0kXQ3GIWk_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 626924
+10  chromedriver                        0x00000001029651a0 _RNvCskE0kXQ3GIWk_7___rustc35___rust_no_alloc_shim_is_unstable_v2 + 327096
+11  chromedriver                        0x0000000102e1a220 cxxbridge1$str$ptr + 2891948
+12  chromedriver                        0x0000000102e1d910 cxxbridge1$str$ptr + 2906012
+13  chromedriver                        0x0000000102dff5d8 cxxbridge1$str$ptr + 2782308
+14  chromedriver                        0x0000000102e1e194 cxxbridge1$str$ptr + 2908192
+15  chromedriver                        0x0000000102df0090 cxxbridge1$str$ptr + 2719516
+16  chromedriver                        0x0000000102e42b30 cxxbridge1$str$ptr + 3058108
+17  chromedriver                        0x0000000102e42cac cxxbridge1$str$ptr + 3058488
+18  chromedriver                        0x0000000102e53680 cxxbridge1$str$ptr + 3126540
+19  libsystem_pthread.dylib             0x0000000186cdbc0c _pthread_start + 136
+20  libsystem_pthread.dylib             0x0000000186cd6b80 thread_start + 8
+
