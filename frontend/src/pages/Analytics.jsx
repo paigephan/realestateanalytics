@@ -10,20 +10,20 @@ const GEOJSON_URL = "/data/statistical-area-2025.geojson";
 const SUBURB_NAME_KEY = "SA22025__1";
 
 const COLOR_THRESHOLDS = [
-  { min: 20, color: "#1e3a8a" },
-  { min: 15,  color: "#1d4ed8" },
-  { min: 10,  color: "#3b82f6" },
-  { min: 5,  color: "#93c5fd" },
-  { min: 0,  color: "#dbeafe" },
+  { min: 20, color: "#281C59" },
+  { min: 15,  color: "#261CC1" },
+  { min: 10,  color: "#8494FF" },
+  { min: 5,  color: "#C9BEFF" },
+  { min: 0,  color: "#FFDBFD" },
 ];
 const COLOR_DEFAULT = "#f3f4f6";
 
 const LEGEND_ITEMS = [
-  { color: "#1e3a8a", label: "20+" },
-  { color: "#1d4ed8", label: "15-20" },
-  { color: "#3b82f6", label: "10-15" },
-  { color: "#93c5fd", label: "5-10" },
-  { color: "#dbeafe", label: "1–5" },
+  { color: "#281C59", label: "20+" },
+  { color: "#261CC1", label: "15-20" },
+  { color: "#8494FF", label: "10-15" },
+  { color: "#C9BEFF", label: "5-10" },
+  { color: "#FFDBFD", label: "1–5" },
   { color: "#f3f4f6", label: "No data" },
 ];
 

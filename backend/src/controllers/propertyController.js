@@ -7,7 +7,7 @@ import {  selectPropertyIDByAddressLandArea, insertPropertyInfo,
             updatePropertyURLByID, selectRandomImageURLs, 
             selectDistinctSuburb, selectDistinctDistrict, checkDistinctSuburbsFromDistricts,
             searchProperties, select20latestHouseSales, selectSalesCount,
-            selectAllAddresses} from '../models_local/property.js';
+            selectAllAddresses, updatePropertyGeoJsonSuburb} from '../models_local/property.js';
 import {  addressLandAreaSchema, newpropertySchema, propertyURLSchema, selectSuburbSchema,
           searchPropertiesSchema } from '../validators/groupingvalidators.js';
 

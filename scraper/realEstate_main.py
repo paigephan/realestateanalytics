@@ -10,12 +10,17 @@ from realEstateAPI_creation import get_property_id, insert_property, update_pric
 from realEstateScraper_listings import scrape_propertylistings, totalpages
 import random
 from realEstateUtils import extract_suburb_district
+from suburbsGeoMatcher import load_geojson, get_suburb_from_address
+
 
 # Load environment variables from a .env file
 load_dotenv()
 
 # Get the API base URL
 api_base_url = os.environ.get("SCRAPER_API_BASE_URL")
+
+GEOJSON_PATH = "../backend/public/data/statistical-area-2025.geojson"
+geojson = load_geojson(GEOJSON_PATH)
 
 def main(url, headers):
 
@@ -56,6 +61,15 @@ def main(url, headers):
     if result.get("cv_value") is not None:
         update_cv(property_id, result, headers)
 
+    suburb = get_suburb_from_address(result["address"], geojson)
+
+    res_geojsonsuburb = requests.patch(
+                f"{api_base_url}/api/property/{property_id}/geojsonsuburb",
+                json={"property_id": property_id, "geojson_suburb": suburb},
+                headers=HEADERS
+            )
+    print(res_geojsonsuburb.json())
+
     time.sleep(random.uniform(0.5, 1.5))
 
 if __name__ == "__main__":
@@ -81,7 +95,7 @@ if __name__ == "__main__":
 
         # Step 3: run through all pages
         seen_urls = set()
-        for page in range(1, PAGES + 1): # remember to edit back to 1
+        for page in range(2, PAGES + 1): # remember to edit back to 1
             page_url = f"{BASE_URL}?page={page}"
             print(f"Scraping {page_url}")
 

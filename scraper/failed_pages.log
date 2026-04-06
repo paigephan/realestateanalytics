@@ -1,1 +1,5 @@
 Page 45: HTTPSConnectionPool(host='realyticsnz-cqfjeudve9bhdabb.newzealandnorth-01.azurewebsites.net', port=443): Max retries exceeded with url: /api/listinghistory (Caused by NewConnectionError("HTTPSConnection(host='realyticsnz-cqfjeudve9bhdabb.newzealandnorth-01.azurewebsites.net', port=443): Failed to establish a new connection: [Errno 60] Operation timed out"))
+Page 2: 'str' object has no attribute 'get'
+Page 3: 'str' object has no attribute 'get'
+Page 4: 'str' object has no attribute 'get'
+Page 5: 'str' object has no attribute 'get'

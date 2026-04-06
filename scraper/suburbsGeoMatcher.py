@@ -14,7 +14,7 @@ api_googlecloud_url = os.environ.get("GOOGLE_CLOUD_API_KEY")
 # =========================
 # CONFIG
 # =========================
-GEOJSON_PATH = "/Users/blokparti/Documents/5. UOA/web_project/frontend/public/data/statistical-area-2025.geojson"
+GEOJSON_PATH = "../backend/public/data/statistical-area-2025.geojson"
 
 
 # =========================
@@ -78,7 +78,7 @@ def get_suburb_from_address(address, geojson):
 
     suburb = find_suburb(lat, lng, geojson)
 
-    return lat, lng, suburb
+    return suburb
 
 
 # =========================
@@ -93,8 +93,8 @@ if __name__ == "__main__":
 
     geojson = load_geojson(GEOJSON_PATH)
 
-    # api_url = f"{api_base_url}/api/property/alladdresses"
-    api_url = "http://localhost:1433/api/property/alladdresses"
+    api_url = f"{api_base_url}/api/property/alladdresses"
+    # api_url = "http://localhost:1433/api/property/alladdresses"
     print(api_url)
     resp = requests.get(api_url)
     payload = resp.json()
@@ -103,10 +103,10 @@ if __name__ == "__main__":
     for item in raw_records:
         property_id = item["id"]
         address = item["address"]
-        lat, lng, suburb = get_suburb_from_address(address, geojson)
+        suburb = get_suburb_from_address(address, geojson)
 
         res_geojsonsuburb = requests.patch(
-                f"http://localhost:1433/api/property/{property_id}/geojsonsuburb",
+                f"{api_base_url}/api/property/{property_id}/geojsonsuburb",
                 json={"property_id": property_id, "geojson_suburb": suburb},
                 headers=HEADERS
             )

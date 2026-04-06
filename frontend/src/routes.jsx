@@ -18,7 +18,10 @@
 // }   
 
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import ReactGA from "react-ga4";
+
 import AppLayout from "./layout/AppLayout";
 
 import Home from "./pages/Home";
@@ -26,9 +29,25 @@ import Properties from "./pages/Properties";
 import Analytics from "./pages/Analytics";
 import AboutPage from "./pages/About";
 
+// Initialize Google Analytics Tags here
+ReactGA.initialize("G-KPGME9TRM4");
+
+// Separate component to track page views for GA
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname });
+  }, [location]);
+
+  return null;
+}
+
+// Main app
 function App() {
   return (
     <BrowserRouter>
+      <PageTracker /> {/* Add it here, inside BrowserRouter */}
       <Routes>
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Navigate to="/home" />} />
